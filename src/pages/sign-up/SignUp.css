@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .signup-container {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -11,6 +12,14 @@
   width: 100vw;
   height: 100vh;
   background-color: green;
+}
+
+.errors {
+  width: 200px;
+  height: 400px;
+  background-color: red;
+  -webkit-transition: width 1s linear;
+  transition: width 1s linear;
 }
 
 .auth-container {
@@ -27,12 +36,12 @@
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  width: 500px;
+  width: 90vw;
+  max-width: 500px;
   min-height: 400px;
   height: 80vh;
   max-height: 600px;
   background-color: #f0f0f0;
-  margin: 0 auto;
 }
 
 .auth-container hr {
@@ -48,7 +57,7 @@
   width: max-content;
 }
 
-.auth-form .auth-field-container:nth-child(2) {
+.auth-form .auth-field-container:nth-child(3) {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -91,5 +100,22 @@
 
 .auth-form #signup-pass-error {
   display: block;
+}
+
+.auth-form .auth-error-container {
+  padding: 0.6rem;
+  margin: 0.5rem 0;
+  background-color: #e40808;
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 12px;
+}
+
+.auth-form .auth-error-container li {
+  list-style: none;
+}
+
+.auth-form .auth-error-container li::before {
+  content: "• ";
 }
 /*# sourceMappingURL=SignUp.css.map */

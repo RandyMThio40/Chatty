@@ -6,31 +6,94 @@ import { Navigate, useNavigate, Link } from 'react-router-dom';
 const SignUp = () => {
     const [concealed,setConcealed] = React.useState(true); 
     const [email,setEmail] = React.useState("");
+    const [passwordStrength,setPasswordStrength] = React.useState("");
     const [password,setPassword] = React.useState("");
     const [confirmPass,setConfirmPass] = React.useState("");
     const {currentUser, signup } = UseAuth();
+    const [error,setError] = React.useState([]);
+    const [emailError,setEmailError] = React.useState("");
     const navigate = useNavigate();
     const FORM_TYPE = {
         EMAIL:"email",
         PASSWORD:"password",
         CONFIRMATION:"confirmation"
     }
+    const lowercase_alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+    const uppercase_alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+    let special_chars = ['/','\\','[',']','#','@','!','$','%','^','&','*','(',')','_','-','+','=',',','.','<','>','?',':',';',"\"",'\'',`\``,'~','|'];
 
-
-    const handleSubmit =  (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         console.log(password,email,concealed);
-        
-        if(password === confirmPass){
-            signup(email,password).then((userCredential) => {
-                console.log("userCreds: ",userCredential);
-                navigate(`/${userCredential.user.uid}/Home`,{replace:true});
-            }).catch((error=>{
-                const error_code = error.code;
-                const error_mess = error.message;
-                console.log("error_code: ", error_code, " error_mess: ", error_mess)
-            }))
+        if(password !== confirmPass) return;
+        let password_strength = 100;
+        let error_messages = [];
+
+        let sc,lc,uc,ws,n;
+        password.split("").forEach((letter)=>{
+            (!sc) && (sc = special_chars.includes(letter));
+            (!lc) && (lc = lowercase_alphabet.includes(letter));
+            (!uc) && (uc = uppercase_alphabet.includes(letter));
+            (!ws) && (ws = letter === " ");
+            (!n) && (n = !isNaN(letter));
+        })
+
+        // let has_special_char = password.split("").some((letter)=>special_chars.includes(letter));
+        // let has_uppercase = password.split("").some((letter)=>uppercase_alphabet.includes(letter));
+        // let has_lowercase = password.split("").some((letter)=>lowercase_alphabet.includes(letter));
+        // let has_white_space = password.split("").some((letter)=>letter === " ");
+        // let has_numbers = password.split("").some((letter)=>!isNaN(letter));
+        // console.log("has_special_char: ",has_special_char, " has_uppercase: ",has_uppercase," has_lowercase: ",has_lowercase, " has_white_space: ",has_white_space, " has_numbers: ", has_numbers);
+
+        if(!sc){
+            password_strength -= 25;
+            error_messages.push("special characters, e.g., @,#,!,$,%.");
         }
+        if(!lc) {
+            password_strength -= 10;
+            error_messages.push("lowercase characters");
+        }
+        if(!uc) {
+            password_strength -= 10;
+            error_messages.push("uppercase characters");
+        }
+        if(!ws) {
+            password_strength -= 10;
+            error_messages.push("white space");
+        }
+        if(!n) {
+            password_strength -= 15;
+            error_messages.push("numbers");
+        }
+        if(password.length < 7){
+            password_strength -= 25;
+            error_messages.push("a longer password (required)");
+        }
+
+        if(password_strength >= 70){
+            setPasswordStrength("strong");
+        }
+        if(password_strength < 70 && password_strength >= 35){
+            setPasswordStrength("moderate");
+        }
+        if(password_strength < 35){
+            setPasswordStrength("weak");
+        }
+        setError(error_messages);
+        if(password_strength < 35) return;
+
+        let res = await signup(email,password).then((userCredential) => {
+            console.log("userCreds: ",userCredential);
+            navigate(`/${userCredential.user.uid}/Home`,{replace:true});
+        }).catch((error=>{
+            const error_code = error.code;
+            const error_mess = error.message;
+            console.log("error_code: ", error_code, " error_mess: ", error_mess);
+            return 1;
+        }))
+        if(res) {setEmailError("email already in use")}
+        else {setEmailError("")}
+        console.log(error_messages,password);
     }
 
 
@@ -43,6 +106,7 @@ const SignUp = () => {
                 break;
             }
             case FORM_TYPE.PASSWORD: {
+                
                 setPassword(event.target.value);
                 break;
             }
@@ -57,16 +121,28 @@ const SignUp = () => {
 
     }
 
+    React.useEffect(()=>{
+        return()=>{
+            setEmailError();
+            setError();
+            setPasswordStrength();
+        }
+    },[])
+
     if(currentUser) return <Navigate to={`/${currentUser.uid}/Home`} replace={true}/>
     
     return(
         <div className="signup-container">
             <div className="auth-container">
                 <form className="auth-form" id="signup_form"  onSubmit={(e)=>handleSubmit(e)}>
+                    <div style={emailError?.length ? {} : {display:"none"}} className="auth-error-container" >
+                        {emailError}
+                    </div>
                     <div className="auth-field-container">
                         <label htmlFor="email">Email: </label>
                         <input type="email" id="user_email" name="email" placeholder="email" onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} value={email} autoComplete="true" required/>
                     </div>
+                    
                     <div className="auth-field-container">
                         <label htmlFor="password">Password: </label>
                         <input type={`${concealed ? "password" : "text"}`} id="password" name="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASSWORD)} value={password} autoComplete="true" required/>
@@ -76,11 +152,21 @@ const SignUp = () => {
                             setConcealed(!concealed);
                         }}></button></span>
                     </div>
+                    <div style={(password === confirmPass) ? {display:"none"} : null} className="auth-error-container">
+                        passwords don't match!
+                    </div>
                     <div className="auth-field-container">
                         <label>Confirm Password: </label>
                         <input type="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true"/> <br/>
-                        <p id="signup-pass-error"><sup>*</sup>passwords don't match</p>
                     </div>
+                    <ul style={(error.length) ? {} :{display:"none"}} className="auth-error-container">
+                        Your password is {passwordStrength}, add:
+                        {error?.map((message,index) => {
+                            return(
+                                <li key={`error-${index}`}>{message}</li>
+                            )
+                        })}
+                    </ul>
                     <input type="submit" value="Submit"></input>
                     
                 </form>
@@ -89,7 +175,9 @@ const SignUp = () => {
                    <span> already have an account? <Link to="/Login" >Login</Link></span>
                 </div>
             </div>
+            <div className="growing">
 
+            </div>
         </div>
     )
 }
