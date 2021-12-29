@@ -3,20 +3,25 @@ import './SignUp.css'
 import { UseAuth } from '../../utility/useContextAuth.js'
 import { Navigate, useNavigate, Link } from 'react-router-dom';
 
+
 const SignUp = () => {
     const [concealed,setConcealed] = React.useState(true); 
+    const [firstName,setFirstName] = React.useState("");
+    const [lastName,setLastName] = React.useState("");
     const [email,setEmail] = React.useState("");
     const [passwordStrength,setPasswordStrength] = React.useState("");
     const [password,setPassword] = React.useState("");
     const [confirmPass,setConfirmPass] = React.useState("");
-    const {currentUser, signup } = UseAuth();
+    const {currentUser, signup, updateDisplayName } = UseAuth();
     const [error,setError] = React.useState([]);
     const [emailError,setEmailError] = React.useState("");
     const navigate = useNavigate();
     const FORM_TYPE = {
         EMAIL:"email",
         PASSWORD:"password",
-        CONFIRMATION:"confirmation"
+        CONFIRMATION:"confirmation",
+        FIRSTNAME:"firstName",
+        LASTNAME:"lastName",
     }
     const lowercase_alphabet = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
     const uppercase_alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -70,21 +75,23 @@ const SignUp = () => {
             error_messages.push("a longer password (required)");
         }
 
-        if(password_strength >= 70){
-            setPasswordStrength("strong");
-        }
-        if(password_strength < 70 && password_strength >= 35){
-            setPasswordStrength("moderate");
-        }
-        if(password_strength < 35){
+        // if(password_strength >= 70){
+        //     setPasswordStrength("strong");
+        // }
+        // if(password_strength < 70 && password_strength >= 35){
+        //     setPasswordStrength("moderate");
+        // }
+        if(password_strength < 35) {
             setPasswordStrength("weak");
+            setError(error_messages);
+            return;
         }
-        setError(error_messages);
-        if(password_strength < 35) return;
 
         let res = await signup(email,password).then((userCredential) => {
-            console.log("userCreds: ",userCredential);
-            navigate(`/${userCredential.user.uid}/Home`,{replace:true});
+            console.log("userCreds: ",userCredential.user);
+            updateDisplayName(userCredential.user,`${firstName} ${lastName}`).then(()=>{
+                navigate(`/${userCredential.user.uid}/Home`,{replace:true});
+            });
         }).catch((error=>{
             const error_code = error.code;
             const error_mess = error.message;
@@ -114,6 +121,14 @@ const SignUp = () => {
                 setConfirmPass(event.target.value);
                 break;
             }
+            case FORM_TYPE.LASTNAME: {
+                setLastName(event.target.value);
+                break;
+            }
+            case FORM_TYPE.FIRSTNAME: {
+                setFirstName(event.target.value);
+                break;
+            }
             default: {
                 break;
             }
@@ -139,10 +154,17 @@ const SignUp = () => {
                         {emailError}
                     </div>
                     <div className="auth-field-container">
+                        <label htmlFor="FirstName">First name: </label>
+                        <input type="text" id="first_name" name="FirstName" placeholder="First name" onChange={(e)=>handleChanges(e,FORM_TYPE.FIRSTNAME)} value={firstName} autoComplete="true" required/>
+                    </div>
+                    <div className="auth-field-container">
+                        <label htmlFor="LastName">Last name: </label>
+                        <input type="text" id="last_name" name="LastName" placeholder="Last name" onChange={(e)=>handleChanges(e,FORM_TYPE.LASTNAME)} value={lastName} autoComplete="true" required/>
+                    </div>
+                    <div className="auth-field-container">
                         <label htmlFor="email">Email: </label>
                         <input type="email" id="user_email" name="email" placeholder="email" onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} value={email} autoComplete="true" required/>
                     </div>
-                    
                     <div className="auth-field-container">
                         <label htmlFor="password">Password: </label>
                         <input type={`${concealed ? "password" : "text"}`} id="password" name="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASSWORD)} value={password} autoComplete="true" required/>
@@ -152,14 +174,14 @@ const SignUp = () => {
                             setConcealed(!concealed);
                         }}></button></span>
                     </div>
-                    <div style={(password === confirmPass) ? {display:"none"} : null} className="auth-error-container">
+                    <div style={(!(confirmPass.length && password !== confirmPass)) ? {display:"none"} : null} className="auth-error-container">
                         passwords don't match!
                     </div>
                     <div className="auth-field-container">
-                        <label>Confirm Password: </label>
-                        <input type="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true"/> <br/>
+                        <label>Confirm password: </label>
+                        <input type="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true"/>
                     </div>
-                    <ul style={(error.length) ? {} :{display:"none"}} className="auth-error-container">
+                    <ul style={(error?.length) ? {} :{display:"none"}} className="auth-error-container">
                         Your password is {passwordStrength}, add:
                         {error?.map((message,index) => {
                             return(

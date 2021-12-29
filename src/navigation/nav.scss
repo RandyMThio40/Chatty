@@ -1,0 +1,84 @@
+@import "../utility/variables";
+
+.Nav-bar{
+    --padding-LR:1rem; 
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    width:100vw;
+    height:60px;
+    background-color:red;
+    padding: 0 var(--padding-LR);
+    .user-setting{
+        display: flex;
+        align-items: center;
+        width:250px;
+        height: inherit;
+        padding:0.2rem 0.6rem;
+        flex-shrink: 0;
+
+
+        .profile-image-container{
+            .profile-image{
+                --length:3rem;
+                width:var(--length);
+                height:var(--length);
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            pointer-events: none;
+        }
+
+    
+        .username-container{
+            margin: 0 0.4rem;
+            .username{
+
+            }
+            pointer-events: none;
+        }   
+        &::before{
+            content:"";
+            position: absolute;
+            left:0;
+            height:80%;
+            border-left:1px solid rgb(19, 19, 19);
+        }
+        &::after{
+            --length:10px;
+            content:"";
+            width:var(--length);
+            height:var(--length);
+            border-left:1px solid black;
+            border-top:1px solid black;
+            transform:rotate(-135deg);
+            transition:transform 500ms ease;
+        }
+        &.active::after{
+            transform: rotate(45deg);
+        }
+
+        .drop-down-menu{
+            display: none;
+            position: absolute;
+            top:100%;
+            left:0;
+            width:calc(100% + var(--padding-LR));
+            height:50vh;
+            background-color: grey;
+            z-index: 100;
+            a{
+                display:block;
+                text-decoration: none;
+                color:white;
+            }
+        }
+        &.active .drop-down-menu{
+            display: block;
+        }
+    }
+}
+
+
+
+

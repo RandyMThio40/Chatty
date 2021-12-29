@@ -1,0 +1,29 @@
+.profile-container{
+    display: flex;
+    flex-direction: column;
+    min-height: 700px;
+    height:100vh;
+    .backbutton{
+        cursor: pointer;
+    }
+}
+
+.profile-wrapper{
+    display:flex;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap-reverse;
+    height:100vh;
+    background-color: red;
+    
+    input[type='file']{
+        display: none;
+    }
+}
+
+#profile-image-preview{
+    width:450px;
+    height:450px;
+    border-radius:50%;
+    object-fit: cover;
+}

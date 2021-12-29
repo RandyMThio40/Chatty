@@ -1,0 +1,10 @@
+.profile-image-container{
+    .profile-image{
+        --length:3rem;
+        width:var(--length);
+        height:var(--length);
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    pointer-events: none;
+}

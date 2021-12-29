@@ -1,4 +1,4 @@
-@import "../variables";
+@import "../../utility/variables";
 
 .signup-container{
     display: flex;
@@ -40,7 +40,7 @@
     width:max-content;
 
     .auth-field-container{
-        &:nth-child(3){
+        &:nth-child(5){
             display: flex;
             align-items: center;
         }

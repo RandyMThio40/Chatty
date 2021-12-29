@@ -1,7 +1,7 @@
 import React,{useContext, useState, useEffect} from 'react';
 import {auth,createUser,signOutUser, signInUser, database} from '../firebase.js';
-import { ref,get, child, set } from "firebase/database";
-
+import { ref,get, child, set, onValue } from "firebase/database";
+import { updateProfile } from 'firebase/auth';
 
 
 const AuthContext = React.createContext();
@@ -46,23 +46,43 @@ export function AuthProvider({children}){
         })
     }
 
+    const updatePhotoURL = async(current_user,url) =>{
+        return updateProfile(current_user,{photoURL:url}).then((res)=>{
+            console.log("updated photoURL ",res);
+        })
+        .catch((error)=> {
+            console.log(error);
+        })
+    }
+
+    const updateDisplayName = async( current_user, nickname ) => {
+        return updateProfile(current_user,{displayName: nickname }).then((res)=>{
+            console.log("updated display name ",res);
+        })
+        .catch((error)=> {
+            console.log(error);
+        })
+    }
+
     
     const value = {
         currentUser,
         signup,
         signout,
         signin,
-        wdb
+        wdb,
+        updateDisplayName,
+        updatePhotoURL
     } 
     
     useEffect(()=>{
         cdb();
         console.log("auth: ", auth, "database: ", database);
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            console.log("in sub: ", user?.uid);
+        const unsubscribe =  auth.onAuthStateChanged(user => {
+            console.log("in sub: ", user);
 
             setCurrentUser(user)
-            setLoading(false);
+            setLoading(false)
         })
         return unsubscribe;
     },[])

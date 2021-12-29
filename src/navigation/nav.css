@@ -1,0 +1,98 @@
+.Nav-bar {
+  --padding-LR:1rem;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  width: 100vw;
+  height: 60px;
+  background-color: red;
+  padding: 0 var(--padding-LR);
+}
+
+.Nav-bar .user-setting {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 250px;
+  height: inherit;
+  padding: 0.2rem 0.6rem;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+}
+
+.Nav-bar .user-setting .profile-image-container {
+  pointer-events: none;
+}
+
+.Nav-bar .user-setting .profile-image-container .profile-image {
+  --length:3rem;
+  width: var(--length);
+  height: var(--length);
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.Nav-bar .user-setting .username-container {
+  margin: 0 0.4rem;
+  pointer-events: none;
+}
+
+.Nav-bar .user-setting::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  height: 80%;
+  border-left: 1px solid #131313;
+}
+
+.Nav-bar .user-setting::after {
+  --length:10px;
+  content: "";
+  width: var(--length);
+  height: var(--length);
+  border-left: 1px solid black;
+  border-top: 1px solid black;
+  -webkit-transform: rotate(-135deg);
+          transform: rotate(-135deg);
+  -webkit-transition: -webkit-transform 500ms ease;
+  transition: -webkit-transform 500ms ease;
+  transition: transform 500ms ease;
+  transition: transform 500ms ease, -webkit-transform 500ms ease;
+}
+
+.Nav-bar .user-setting.active::after {
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+
+.Nav-bar .user-setting .drop-down-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: calc(100% + var(--padding-LR));
+  height: 50vh;
+  background-color: grey;
+  z-index: 100;
+}
+
+.Nav-bar .user-setting .drop-down-menu a {
+  display: block;
+  text-decoration: none;
+  color: white;
+}
+
+.Nav-bar .user-setting.active .drop-down-menu {
+  display: block;
+}
+/*# sourceMappingURL=nav.css.map */

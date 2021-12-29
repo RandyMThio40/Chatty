@@ -6,6 +6,8 @@ import Home from './pages/home/home.js';
 import SignUp from "./pages/sign-up/SignUp.js";
 import { NotFound } from './pages/notFound/NotFound';
 import Login from './pages/login/Login';
+import { Nav } from './navigation/nav';
+import { Profile } from './pages/profile/profile';
 
 function App() {
 
@@ -19,7 +21,13 @@ function App() {
             <Route path="Login" element={<Login/>}/>
             <Route path="/:id/Home" element={
               <ProtectedRoute>
+                <Nav/>
                 <Home/>
+              </ProtectedRoute>
+            }/>
+            <Route path="/:id/Profile" element={
+              <ProtectedRoute>
+                <Profile/>
               </ProtectedRoute>
             }/>
             <Route path="*"element={<NotFound/>} />

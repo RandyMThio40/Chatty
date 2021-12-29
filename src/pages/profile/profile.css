@@ -1,0 +1,44 @@
+.profile-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-height: 700px;
+  height: 100vh;
+}
+
+.profile-container .backbutton {
+  cursor: pointer;
+}
+
+.profile-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: space-evenly;
+      -ms-flex-pack: space-evenly;
+          justify-content: space-evenly;
+  -ms-flex-wrap: wrap-reverse;
+      flex-wrap: wrap-reverse;
+  height: 100vh;
+  background-color: red;
+}
+
+.profile-wrapper input[type='file'] {
+  display: none;
+}
+
+#profile-image-preview {
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+/*# sourceMappingURL=profile.css.map */
