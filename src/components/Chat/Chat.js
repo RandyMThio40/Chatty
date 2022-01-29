@@ -148,7 +148,7 @@ export const ChatLayout = () => {
                 {chatsList.length && chatsList.map((el,idx)=>{
                     return(
                         <Link key={idx} to={`${el.key}`}>
-                            <div className="link-chat">
+                            <div className={`link-chat ${(chatID === el.key) ? "active" : ""}`}>
                                 <h4 className="link-chat-title">{el.members.toString()}</h4>
                             </div>
                         </Link>
@@ -204,12 +204,12 @@ export const Chat = () => {
 
     const handleSubmit = async(event) => {
         event.preventDefault();
-        if(!message.length) return
+        if(!message.length || !message.trim().length) return
         // console.log("submit: ",message);
-        let message_obj = {text:message,timeStamp: new Date().toString(), img:null, sender: currentUser.uid}
-        setConversation(prev => [...prev,message_obj])
-        socket.current.emit("sent",currentRoom,message_obj)
-        const res = await sendMessage(currentRoom,message_obj)
+        let message_obj = {text:message,timeStamp: new Date().toString(), img:null, sender: currentUser.uid};
+        setConversation(prev => [...prev,message_obj]);
+        socket.current.emit("sent",currentRoom,message_obj);
+        const res = await sendMessage(currentRoom,message_obj);
         const chat_el = document.querySelector(".chat-wrapper");
         setTimeout(()=>{
             chat_el.scrollTop = chat_el.scrollHeight;

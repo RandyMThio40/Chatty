@@ -55,6 +55,14 @@
   background-color: rgba(211, 211, 211, 0.5);
 }
 
+.layout-chat .chat-list-links .link-chat.active {
+  background-color: #4fe9e7;
+}
+
+.layout-chat .chat-list-links .link-chat.active:hover {
+  background-color: rgba(79, 233, 231, 0.9);
+}
+
 .layout-chat .chat-list-links .link-chat .link-chat-title {
   width: 100%;
   font-size: 0.9rem;
@@ -145,6 +153,7 @@
   height: 20px;
   border-radius: 50%;
   background-color: green;
+  margin-left: 10px;
 }
 
 .layout-chat .chat-main-content .chat-container .chat-overhead .inactive {

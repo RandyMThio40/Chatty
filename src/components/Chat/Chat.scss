@@ -35,6 +35,12 @@
             &:hover{
                 background-color: rgba(211, 211, 211,0.5);
             }
+            &.active{
+                background-color: rgba(79, 233, 231, 1);
+                &:hover{
+                    background-color: rgba(79, 233, 231, 0.9);
+                }
+            }
             .link-chat-title{
                 width:100%;
                 font-size:0.9rem;
@@ -95,6 +101,7 @@
                     height:20px;
                     border-radius: 50%;
                     background-color:green;
+                    margin-left:10px;
                 }
                 .inactive{
                     background-color:grey;
