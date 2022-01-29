@@ -1,44 +1,25 @@
-import React,{ useState, useEffect, useRef } from 'react';
+import React from 'react';
 import './home.css';
 import { UseAuth } from '../../utility/useContextAuth';
-import { useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import Chat from '../../components/Chat/Chat';
 
 export const Home = () => {
-    const { currentUser, signout } = UseAuth();
-    const navigate = useNavigate();
-    const socket = useRef();
-    const [loading,setLoading] = useState(true);
+    const { currentUser } = UseAuth();
 
-    useEffect(()=>{
-        socket.current = io("http://localhost:5000");
-        socket.current.emit("has-connected",{user:currentUser});
-        socket.current.on("is-connected",(res)=>{
-            setLoading(false);
+    const handleClick = () => {
+        const text = document.querySelector(".asd");
+        navigator.clipboard.writeText(text.value).then(()=>{
+            alert(`copied the text: ${text.value}` )
         })
-        socket.current.on("response",(res)=>{
-            console.log(res);
+        console.log("copy was " + text.value)
 
-        })
-        console.log("currrentuser: ", currentUser);
-        return ()=>{
-            socket.current.disconnect()
-        }
-    },[])
-    
-    if(loading) return(
-        <>
-            <h1>LOADING...</h1>
-        </>
-    )
-
+    }
+ 
     return(
         <section className="Home-container">
             <h1>HOME PAGE</h1>
             <h3>WELCOME {currentUser?.displayName}</h3>
-            <Chat/>
-            
+            <button onClick={handleClick} >copy</button>
+            <textarea className='asd' defaultValue={"qwyetgqheiqweo"}/>
         </section>
     );
 }

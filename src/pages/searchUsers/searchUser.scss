@@ -1,0 +1,65 @@
+.search-user-container{
+    display: flex;
+    height:100vh;
+    &>:nth-child(2){
+        flex-grow:1;
+    }
+    .friends-page,
+    .search-users-page,
+    .friend-request-page{
+        width:100%;
+        height:100vh;
+        background-color:blue;
+    }
+    .friends-page{
+        background-color: purple;
+    }
+    
+    .search-users-page{
+        background-color:green;
+    }
+}
+
+.select-user-option{
+    display: flex;
+    align-items:center;
+    font-size:1.2rem;
+    .alt-user-img,
+    .select-user-img{
+        --length:5rem;
+        width:var(--length);
+        height:var(--length);
+        background-color:grey;
+        border-radius:50%;
+        object-fit: cover;
+        &.incomplete{
+           opacity: 0;
+        }
+    }
+    .alt-user-img{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        *{
+            font-size: 3rem;
+            font-weight:bolder;
+            text-transform: capitalize;
+        }
+    }
+    .select-user-name{
+        font-weight:bold;
+        text-transform: capitalize;
+    }
+
+    .friend-request-butt{
+        &::before{
+            content:"add friend"
+        }
+        &.pending::before{
+            content:"pending";
+        }
+        &.friend::before{
+            content:"friend";
+        }
+    }
+}

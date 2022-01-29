@@ -12,7 +12,7 @@ const SignUp = () => {
     const [passwordStrength,setPasswordStrength] = React.useState("");
     const [password,setPassword] = React.useState("");
     const [confirmPass,setConfirmPass] = React.useState("");
-    const {currentUser, signup, updateDisplayName } = UseAuth();
+    const {currentUser, signup, updateDisplayName,setActiveUser } = UseAuth();
     const [error,setError] = React.useState([]);
     const [emailError,setEmailError] = React.useState("");
     const navigate = useNavigate();
@@ -89,7 +89,7 @@ const SignUp = () => {
 
         let res = await signup(email,password).then((userCredential) => {
             console.log("userCreds: ",userCredential.user);
-            updateDisplayName(userCredential.user,`${firstName} ${lastName}`).then(()=>{
+            updateDisplayName(userCredential.user,`${firstName} ${lastName}`).then(()=>setActiveUser(userCredential.user.uid)).then(()=>{
                 navigate(`/${userCredential.user.uid}/Home`,{replace:true});
             });
         }).catch((error=>{

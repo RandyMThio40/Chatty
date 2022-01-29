@@ -8,28 +8,30 @@ import { NotFound } from './pages/notFound/NotFound';
 import Login from './pages/login/Login';
 import { Nav } from './navigation/nav';
 import { Profile } from './pages/profile/profile';
+import { Users, Search, FriendRequests, Friends } from './pages/searchUsers/searchUsers';
+import {ChatLayout,Chat} from './components/Chat/Chat';
 
 function App() {
 
   return (
     <div className="App">
-      
       <AuthProvider>
       <Router>
         <Routes>
-            <Route exact path="/" element={<SignUp/>}/>
+            <Route path="/" element={<SignUp/>}/>
             <Route path="Login" element={<Login/>}/>
-            <Route path="/:id/Home" element={
-              <ProtectedRoute>
-                <Nav/>
-                <Home/>
-              </ProtectedRoute>
-            }/>
-            <Route path="/:id/Profile" element={
-              <ProtectedRoute>
-                <Profile/>
-              </ProtectedRoute>
-            }/>
+            <Route path="/:id" element={<ProtectedRoute><Nav/></ProtectedRoute>}>
+                <Route index path="Home" element={ <Home/> }/>
+                <Route path="Profile" element={ <Profile/> }/>
+                <Route path="Users" element={ <Users/> }>
+                  <Route index element={<Search/>}/>
+                  <Route path="FriendRequests" element={<FriendRequests/>}/>
+                  <Route path="Friends" element={<Friends/>}/>
+                </Route>
+                <Route path="Chats" element={<ChatLayout/>}>
+                  <Route path=":chatID" element={<Chat/>} />
+                </Route>
+            </Route>
             <Route path="*"element={<NotFound/>} />
         </Routes>
       </Router>

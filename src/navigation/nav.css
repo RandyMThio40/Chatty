@@ -15,6 +15,11 @@
   padding: 0 var(--padding-LR);
 }
 
+.Nav-bar a {
+  text-decoration: none;
+  color: initial;
+}
+
 .Nav-bar .user-setting {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -40,6 +45,10 @@
   border-radius: 50%;
   -o-object-fit: cover;
      object-fit: cover;
+}
+
+.Nav-bar .user-setting .profile-image-container .profile-image.incomplete {
+  opacity: 0;
 }
 
 .Nav-bar .user-setting .username-container {

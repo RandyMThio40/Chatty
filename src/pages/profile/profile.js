@@ -1,13 +1,12 @@
-import React,{ useState, useEffect, useRef } from 'react';
+import React,{ useState, useEffect, useRef,useCallback } from 'react';
 import { UseAuth } from '../../utility/useContextAuth';
 import { useNavigate } from 'react-router-dom';
-import { ref } from '@firebase/database';
 import { uploadBytes, ref as storageRef, getDownloadURL } from '@firebase/storage';
-import { database, storage } from '../../firebase';
+import { storage } from '../../firebase';
 import './profile.css';
 
 export const Profile = () => {
-    const { currentUser, signout,wdb, updatePhotoURL, updateDisplayName } = UseAuth();
+    const { currentUser, signout,setInactiveUser, writeDB, updatePhotoURL, updateDisplayName } = UseAuth();
     const [name,setName] = useState("");
     const [file,setFIle] = useState();
     const [picture,setPicture] = useState();
@@ -23,7 +22,6 @@ export const Profile = () => {
         };
         const url = await uploadBytes(storageRef(storage,`${currentUser.uid}/ProfilePics/userImage`),file,metadata)
         .then(()=>getDownloadURL(storageRef(storage,`${currentUser.uid}/ProfilePics/userImage`)));
-        wdb(currentUser.uid,currentUser.displayName,url);
         updatePhotoURL(currentUser,url);
         updateDisplayName(currentUser,name)
         setPicture(url)
@@ -36,20 +34,24 @@ export const Profile = () => {
         
     }
 
-    const handleValue = () => {
+    const handleValue = useCallback(() => {
         setPicture(currentUser.photoURL);
         setLoading(false);
-    }
+    },[currentUser])
     const handleFileInput = () => {
         inref.current.click();
     }
 
+    const handleSignOut = () => {
+        setInactiveUser();
+        signout().then(()=>navigate("/",{replace: true}))
+    }
+
     
     useEffect(()=>{
-
         handleValue();
-        return handleValue;
-    },[])
+        return handleValue();
+    },[handleValue])
 
     if(loading) return(<></>);
 
@@ -72,10 +74,7 @@ export const Profile = () => {
                         <input type="submit" value="send"/>
 
                     </form>
-                        <button onClick={()=>{
-                            signout().then(()=>navigate("/",{replace: true}))
-                        }}>
-                        sign out</button>
+                        <button onClick={handleSignOut}>sign out</button>
                 </div>
                
                 <div>
