@@ -224,6 +224,10 @@ export function AuthProvider({children}){
         setCurrentChatBG("");
     }
 
+    const handleUnmountChat = (chat_id) => {
+
+    }
+
 
     const value = {
         currentUser,
@@ -264,6 +268,9 @@ export function AuthProvider({children}){
         return unsubscribe;
     },[])
 
+    useEffect(()=>{
+        console.log("bg: ",currentChatBG);
+    },[currentChatBG])
 
 
 

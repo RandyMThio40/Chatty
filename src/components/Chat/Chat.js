@@ -11,6 +11,7 @@ const displayTime = (date_obj) => {
     let hrs = D.getHours();
     let min = D.getMinutes();
     if(min < 10) min = `0${min}`;
+    if(hrs < 10) hrs = `0${hrs}`;
     return `${hrs}:${min}`;
 }
 
@@ -204,9 +205,9 @@ export const Chat = () => {
 
     const handleSubmit = async(event) => {
         event.preventDefault();
-        if(!message.length || !message.trim().length) return
+        if(!message.trim().length) return
         // console.log("submit: ",message);
-        let message_obj = {text:message,timeStamp: new Date().toString(), img:null, sender: currentUser.uid};
+        let message_obj = {text: message.trim(), timeStamp: new Date().toString(), img:null, sender: currentUser.uid};
         setConversation(prev => [...prev,message_obj]);
         socket.current.emit("sent",currentRoom,message_obj);
         const res = await sendMessage(currentRoom,message_obj);
@@ -361,6 +362,14 @@ export const Chat = () => {
 
 export default Chat;
 
+const ProfileImg = ({display = true,img_type}) => {
+    if(!display) return <></>
+    if(img_type["img_url"]) return <img className="profile-pic" src={img_type["img_url"]} alt="img" />
+    if(!img_type["img_url"]) return <p className='alt-pic'><span>{img_type["name"][0]}</span></p>
+    
+}
+
+
 const Conversation = React.memo(({uid,conversation,userData}) =>{
     const prev_date = useRef({
         day:null,
@@ -369,7 +378,7 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
     });
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-
+    const prev_display_name = useRef("");
     
     const handleJump = () => {
         const chat_wrap = document.querySelector(".chat-wrapper");
@@ -390,6 +399,40 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
 
         }
     },[conversation])
+
+    const handleLinks = (str) => {
+        if(!str) return;
+        let split_str = str;
+        let new_str = []
+
+        do{
+            let match_idx = split_str.search(/https:\/\//);
+            if(match_idx > 0){
+                new_str.push(split_str.substring( 0,match_idx));
+                split_str = split_str.substring(match_idx);
+            }
+            else if(match_idx === 0){
+                let whitespace_idx = split_str.search(" ");
+                let url = split_str.substring(0,whitespace_idx);
+                new_str.push(<a className="hyperlink" target="_blank" href={url}>{`${url}`}</a>)
+                split_str = (whitespace_idx === -1) ? "" : split_str.substring(whitespace_idx);
+            }
+            else{
+                if(split_str === str) return str;
+                new_str.push(split_str);
+                split_str = "";
+            }
+        } while(split_str.length)
+
+
+        return new_str.map((el,idx)=>{
+            return (
+                <React.Fragment key={idx}>
+                    {el}
+                </React.Fragment>
+            )
+        }); 
+    }
     
     
     return(
@@ -405,6 +448,7 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
                     let M = date.getMonth();
                     let D = date.getDate();
                     let display_time = false;
+                    let display_name = false;
                     if( !idx || date.getFullYear() !== prev_date.current["year"] || date.getMonth() !== prev_date.current["month"] || date.getDate() !== prev_date.current["day"] ){
                         prev_date.current["year"] = Y;
                         prev_date.current["month"] = M; 
@@ -413,23 +457,39 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
                         let d = new Date();
                         if(Y === d.getFullYear() && M === d.getMonth() && D === d.getDate()) today = "Today";
                     }
+                    if(display_time){
+                        display_name = true
+                    } 
+                    else if( prev_display_name.current !== item.sender ){
+                        display_name = true;
+                    }
+                    prev_display_name.current = item.sender
+
+
                     
                     return(
                         <React.Fragment key={idx}>
-                            <div className="display-date" style={(display_time)?{textAlign:"center"}:{display:"none"}} >{today || `${weekday[date.getDay()]}, ${month[M]} ${D}, ${Y}`}</div>
+                            {
+                                (display_time)
+                                ? <div className="display-date" style={{textAlign:"center"}} >{today || `${weekday[date.getDay()]}, ${month[M]} ${D}, ${Y}`}</div>
+                                : <></>
+                            }
                             <div  className={`message-container  ${ item.sender === uid ? `user` : `` }`}>
-                                <div className={`message-wrapper`}>
-                                    <h3 className="message-sender">{userData[item.sender]["name"]}</h3>
-                                    <p className="message-text">
-                                        {item?.text}
-                                    <span><sub>{displayTime(item.timeStamp)}</sub></span>
-                                    </p>
+                                <div className={`message-content ${(!display_name)? "no-prof-img" : ""}`}>
+                                    {
+                                        (display_name)
+                                            ?<h3 className="message-sender">{userData[item.sender]["name"]}</h3>
+                                            :<></>
+                                    }
+                                    <div className="message-wrapper">
+                                        <p className="message-text">
+                                            {handleLinks(item?.text.trim())}
+                                            <span className="time"><sub>{displayTime(item.timeStamp)}</sub></span>
+                                        </p>
+                                    </div>
+
                                 </div>
-                                {
-                                    (userData[item.sender]["img_url"])
-                                    ? <img className="profile-pic" src={ userData[item.sender]["img_url"]} alt="img" />
-                                    : <p className='alt-pic'><span>{userData[item.sender]["name"][0]}</span></p>
-                                }
+                                <ProfileImg display={display_name} img_type={userData[item.sender]}/>
                             </div>
                         </React.Fragment>
                     )

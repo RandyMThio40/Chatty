@@ -188,6 +188,7 @@
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container {
+  --length:2.6rem;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -215,31 +216,53 @@
   font-size: 0.8rem;
 }
 
-.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-wrapper {
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content {
   max-width: 70%;
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
-  padding: 10px;
+  padding: 5px;
   padding-top: 0;
 }
 
-.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-wrapper .message-text {
-  background-color: grey;
-  padding: 10px;
-  color: white;
-  font-size: 1.2rem;
-  border-radius: 0.2rem;
-  overflow-wrap: break-word;
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content.no-prof-img {
+  margin: unset;
+  margin-left: var(--length);
 }
 
-.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-wrapper .message-text span {
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+  background-color: grey;
+  border-radius: 0.2rem;
+  padding: 10px;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .time {
   float: right;
   padding-left: 5px;
 }
 
-.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-wrapper .message-text span sub {
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .time sub {
+  color: white;
   font-size: 0.7rem;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-text {
+  color: white;
+  font-size: 1.2rem;
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-text .hyperlink {
+  color: inherit;
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container.user {
@@ -254,9 +277,13 @@
   margin-left: auto;
 }
 
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container.user .no-prof-img {
+  margin: unset;
+  margin-right: var(--length);
+}
+
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .alt-pic,
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .profile-pic {
-  --length:2.6em;
   width: var(--length);
   height: var(--length);
   border-radius: 50%;
@@ -306,6 +333,13 @@
   overflow-y: scroll;
   overflow-x: hidden;
   outline: none;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-text-message * {
+  background: none !important;
+  color: inherit !important;
+  text-decoration: none !important;
+  font-size: inherit !important;
 }
 
 .layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-input-placeholder {
