@@ -9,4 +9,18 @@
   width: 100%;
   height: calc(100vh - 60px);
 }
+
+#cont {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.test-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 1rem;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
 /*# sourceMappingURL=home.css.map */

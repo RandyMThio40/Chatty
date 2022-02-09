@@ -167,7 +167,7 @@
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper {
   height: 100%;
-  padding: 20px;
+  padding: 10px;
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -183,7 +183,7 @@
   background-color: red;
   padding: 5px 8px;
   border-radius: 0.5rem;
-  margin: auto;
+  margin: 10px auto 0;
   z-index: 1;
 }
 
@@ -202,7 +202,7 @@
   -webkit-box-align: end;
       -ms-flex-align: end;
           align-items: flex-end;
-  padding: 5px 0;
+  padding: 2px 0;
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-sender {
@@ -221,8 +221,7 @@
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
-  padding: 5px;
-  padding-top: 0;
+  padding: 0 5px;
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content.no-prof-img {
@@ -231,12 +230,6 @@
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: end;
-      -ms-flex-align: end;
-          align-items: flex-end;
   background-color: grey;
   border-radius: 0.2rem;
   padding: 10px;
@@ -249,20 +242,46 @@
   padding-left: 5px;
 }
 
-.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .time sub {
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .time .time-value {
   color: white;
   font-size: 0.7rem;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-img-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  overflow: hidden;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-img-wrapper .message-img {
+  max-width: 300px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-img-wrapper .time {
+  float: initial;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  text-shadow: 5px 0px 10px black, -5px 0px 10px black, 0px 5px 10px black, 0px -5px 10px black;
+}
+
+.layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-img-wrapper .time .time-value {
+  font-size: 0.85rem;
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-text {
   color: white;
   font-size: 1.2rem;
-  word-break: break-all;
   overflow-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .message-content .message-wrapper .message-text .hyperlink {
-  color: inherit;
+  word-break: break-all;
+  color: blue;
 }
 
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container.user {
@@ -286,6 +305,7 @@
 .layout-chat .chat-main-content .chat-container .conv-container .chat-wrapper .message-container .profile-pic {
   width: var(--length);
   height: var(--length);
+  padding-bottom: 4px;
   border-radius: 50%;
   -o-object-fit: cover;
      object-fit: cover;
@@ -307,14 +327,113 @@
 }
 
 .layout-chat .chat-main-content .chat-container .chat-input-section {
+  --padding-s:0.2rem;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -webkit-box-pack: center;
       -ms-flex-pack: center;
           justify-content: center;
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
   padding: 20px 0;
   background-color: transparent;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: reverse;
+      -ms-flex-direction: row-reverse;
+          flex-direction: row-reverse;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  height: -webkit-min-content;
+  height: -moz-min-content;
+  height: min-content;
+  padding: 5px 0 15px;
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container {
+  width: 50px;
+  height: 50px;
+  margin: 0 var(--padding-s);
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .remove-butt {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 17px;
+  height: 17px;
+  background-color: #383838;
+  border-radius: 50%;
+  -webkit-transform: translate(20%, -20%);
+          transform: translate(20%, -20%);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .remove-butt:hover {
+  background-color: #545454;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .remove-butt::before, .layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .remove-butt::after {
+  content: "";
+  position: absolute;
+  width: 50%;
+  height: 1px;
+  background-color: white;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .remove-butt::before {
+  -webkit-transform: rotate(-45deg);
+          transform: rotate(-45deg);
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .progress-bar-container {
+  width: inherit;
+  height: inherit;
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .progress-bar-container .chat-img {
+  -o-object-fit: cover;
+     object-fit: cover;
+  width: inherit;
+  height: inherit;
+  background-color: black;
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-imgs-container .chat-img-container .progress-bar-container .progress-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0%;
+  height: 4px;
+  background-color: lightblue;
+  -webkit-transition: width 200ms linear;
+  transition: width 200ms linear;
 }
 
 .layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container {
@@ -328,21 +447,25 @@
   padding: 0.5rem 0.3rem;
 }
 
-.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-text-message {
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-input-wrapper {
+  padding-left: var(--padding-s);
+}
+
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-input-wrapper .chat-text-message {
   max-height: 4rem;
   overflow-y: scroll;
   overflow-x: hidden;
   outline: none;
 }
 
-.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-text-message * {
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-input-wrapper .chat-text-message * {
   background: none !important;
   color: inherit !important;
   text-decoration: none !important;
   font-size: inherit !important;
 }
 
-.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-input-placeholder {
+.layout-chat .chat-main-content .chat-container .chat-input-section .chat-input-container .chat-input-wrapper .chat-input-placeholder {
   position: absolute;
   top: 50%;
   -webkit-transform: translate(0, -50%);

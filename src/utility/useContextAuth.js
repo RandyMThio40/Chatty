@@ -2,8 +2,9 @@ import React,{useContext, useState, useEffect} from 'react';
 import {auth,createUser,signOutUser, signInUser, database} from '../firebase.js';
 import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild } from "firebase/database";
 import { updateProfile } from 'firebase/auth';
-import { uploadBytes,ref as storageRef, getDownloadURL } from 'firebase/storage';
+import { uploadBytes,ref as storageRef, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '../firebase.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const AuthContext = React.createContext();
 
@@ -122,7 +123,7 @@ export function AuthProvider({children}){
  
     const acceptFriendReq = async(uid,user_uid) => {
         const existing_chat = await findChat(uid,user_uid);
-        const data_key = push(child(ref(database), 'ChatRoom')).key;
+        const data_key = push(child(ref(database), 'ChatRooms')).key;
         const obj1 = {
             member:user_uid
         }
@@ -192,27 +193,20 @@ export function AuthProvider({children}){
         }
     }
 
-    const sendMessage = (chat_id,data) => {
-        try{
-            return set(push(ref(database,`ChatRooms/${chat_id}/messages`)),data);
-        } catch (err){
-            return err;
-        }
-    }
-
+    
     const changeBG = async(chatID,file,metaData) => {
         try{
             const updates = {}
-            const url = await uploadBytes(storageRef(storage,chatID),file,metaData)
-            .then(()=>getDownloadURL(storageRef(storage,chatID)));
+            const url = await uploadBytes(storageRef(storage,`${chatID}/background-img`),file,metaData)
+            .then(()=>getDownloadURL(storageRef(storage,`${chatID}/background-img`)));
             updates[`${chatID}/background_img`] = url;
             update(ref(database,`/ChatRooms`),updates);
         } catch(err){
             console.log(err);
         }
-
+        
     }  
-
+    
     const [currentChatBG,setCurrentChatBG] = useState("");
     
     const observeChatBG = (path) => {
@@ -223,11 +217,46 @@ export function AuthProvider({children}){
     const clearChatBG = ()=> {
         setCurrentChatBG("");
     }
-
-    const handleUnmountChat = (chat_id) => {
-
+    
+    const uploadToStorage = async (obj,path="test_upload_img") => {
+        const url = await uploadBytes(storageRef(storage,path),obj,{contentType:"image/png"})
+        .then(()=>getDownloadURL(storageRef(storage,path)));
+        console.log("url: ",url)
+        return url
     }
 
+    const sendMessage = (chat_id,data) => {
+        try{
+            const updates = {};
+            data.forEach(async(obj)=>{
+                updates[`${push(child(ref(database), 'ChatRooms')).key}`] = obj;
+            })
+            update(ref(database,`ChatRooms/${chat_id}/messages/`),updates);
+            return true;
+        } catch (err){
+            return err;
+        }
+    }
+    
+    const deleteImg = async(chatID,url,path = "background") => {
+        const updates = {};
+        deleteObject(storageRef(storage,url)).then(()=>{
+            console.log("file deleted successfully")
+        }).catch((error)=>{
+            console.log(error);
+        })
+        switch(path){
+            case "background": {
+                updates[`${chatID}/background_img`] = null;
+                break;
+            }
+            default: {
+                updates[`${chatID}/${path}`] = null;
+                break;
+            }
+        }
+        update(ref(database,`/ChatRooms`),updates);
+    }
 
     const value = {
         currentUser,
@@ -256,6 +285,8 @@ export function AuthProvider({children}){
         changeBG,
         observeChatBG,
         clearChatBG,
+        uploadToStorage,
+        deleteImg
     } 
     
     useEffect(()=>{
@@ -268,12 +299,14 @@ export function AuthProvider({children}){
         return unsubscribe;
     },[])
 
-    useEffect(()=>{
-        console.log("bg: ",currentChatBG);
-    },[currentChatBG])
 
-
-
+    const tes = () => {
+        const updates = {};
+        for(let i = 0; i < 20; i++){
+            updates[`${push(child(ref(database), 'ChatRooms')).key}`] = {time:1,pp:"large"}
+        }
+        update(ref(database,`ChatRooms/testdirectory/messages/`),updates);
+    }
 
     useEffect(()=>{
         if(currentUser){

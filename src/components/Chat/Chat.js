@@ -4,7 +4,9 @@ import { UseAuth } from '../../utility/useContextAuth';
 import { database } from '../../firebase';
 import { onValue,ref } from 'firebase/database';
 import { io } from 'socket.io-client';
+import axios from "axios";
 import './Chat.css';
+import { v4 } from 'uuid';
 
 const displayTime = (date_obj) => {
     let D = new Date(date_obj);
@@ -18,7 +20,7 @@ const displayTime = (date_obj) => {
 
 export const ChatLayout = () => {
     const {chatID} = useParams();
-    const { currentUser, getConv , fetchUsersData,changeBG} = UseAuth();
+    const { currentUser, getConv , fetchUsersData,changeBG, deleteImg,currentChatBG } = UseAuth();
     const [loading,setLoading] = useState(true);
     const [loadingConv,setLoadingConv] = useState(true);
     const navigate = useNavigate();
@@ -63,12 +65,14 @@ export const ChatLayout = () => {
     const clickChangeBG = () =>{
         change_bg.current.click();
     }
-
+    
     const handleChangeBG = async(e) => {
+        console.log("clicked here")
         if(!e.target.files[0]) return;
         const metadata = {
             contentType: e.target.files[0].type,
         };
+        console.log("file: ", e.target.files[0])
         changeBG(chatID,e.target.files[0],metadata);
     }
 
@@ -180,7 +184,7 @@ export const ChatLayout = () => {
                                     <input ref={change_bg} onChange={handleChangeBG} type="file" accept="image/*" hidden/>
                                     <button onClick={clickChangeBG}>Change background img</button>
                                 </div>
-
+                                { currentChatBG && <div><button onClick={()=>deleteImg(chatID,currentChatBG)}>delete img</button></div> } 
                             </div>
                         </details>
                     </div>
@@ -189,6 +193,45 @@ export const ChatLayout = () => {
 
             }
         </section>
+    )
+}
+
+const ChatMediaFiles = ({src,id,callback}) => {
+    const [progress,setProgress] = useState(0);
+
+    const config =  {
+        onDownloadProgress:(e)=>{
+            console.log("loading progress: ",parseInt(e.loaded / e.total * 100));
+            setProgress(parseInt(e.loaded / e.total * 100));
+        }
+    }
+
+    const getImageData = async (url) => {
+        let res = await axios.post("http://localhost:3001/findImg",{url:url},config);
+        let blob = new Blob([new Uint8Array(res.data.buffer.data)],{type:"image/png"})
+        callback(prev => {
+            prev[id].blob = blob;
+            return prev;
+        })
+        console.log(`id: ${id}, res: `,res);
+    }
+
+    const handleRemove = () =>{
+        callback(prev => prev.filter((item,idx)=> idx !== id));
+    }
+
+    useEffect(()=>{
+        getImageData(src.url);
+    },[])
+
+    return(
+        <div className="chat-img-container">
+            <div className="remove-butt" onClick={handleRemove}/>
+            <div className="progress-bar-container">
+                <img src={src.url} alt={src.url} className="chat-img"/>
+                <div style={{width:`${progress}%`}} className='progress-bar'/>
+            </div>
+        </div>
     )
 }
 
@@ -201,21 +244,44 @@ export const Chat = () => {
     const hidden_butt = useRef();
     const editable_div = useRef();
     const [active,setActive] = useState(false);
-    const {currentUser,observeChatBG,currentChatBG,clearChatBG} = UseAuth();
+    const {currentUser,observeChatBG,currentChatBG,clearChatBG,uploadToStorage} = UseAuth();
+    const [media,setMedia] = useState([]);
+    const imgsRef = useRef();
+    
+    const manageUploadFiles = async() => {
+        return await Promise.all(media.map(async(src,idx)=>{
+            const url = await uploadToStorage(src.blob,`${currentRoom}/media/${v4()}`)
+            return {text:null,img:url,timeStamp: new Date().toString(), sender: currentUser.uid}     
+        }));
+    }
 
     const handleSubmit = async(event) => {
         event.preventDefault();
-        if(!message.trim().length) return
-        // console.log("submit: ",message);
-        let message_obj = {text: message.trim(), timeStamp: new Date().toString(), img:null, sender: currentUser.uid};
-        setConversation(prev => [...prev,message_obj]);
-        socket.current.emit("sent",currentRoom,message_obj);
-        const res = await sendMessage(currentRoom,message_obj);
+        console.log(!message.trim().length && !media.length)
+        if(!message.trim().length && !media.length) return
+        const message_arr = [];
+        if(message.trim().length){
+            let a = document.createElement("a");
+            a.innerHTML = message;
+            let polished_message = `${a.innerHTML.replace(/&nbsp;/g," ")}`.trim();
+            console.log("submit: ",polished_message.search(/\n/g),polished_message.length);
+            let message_obj = {text: polished_message, timeStamp: new Date().toString(), img:null, sender: currentUser.uid};
+            message_arr.push(message_obj);
+        }
+        if(media.length){
+            let files = await manageUploadFiles();
+            message_arr.push(...files);
+        }
+        console.log("mess",message_arr);
+        setConversation(prev => [...prev,...message_arr]);
+        socket.current.emit("sent",currentRoom,message_arr);
+        const res = await sendMessage(currentRoom,message_arr);
         const chat_el = document.querySelector(".chat-wrapper");
         setTimeout(()=>{
             chat_el.scrollTop = chat_el.scrollHeight;
         })
         setMessage("");
+        setMedia([]);
     }
     
     const handleKeyUp = (event) => {
@@ -234,31 +300,48 @@ export const Chat = () => {
             shift_key_down.current = true;
         }
         else if( shift_key_down.current && event.key === "Enter"){
+            console.log("new line")
             enter_key_down.current = true;
         }
         else if( !shift_key_down.current && event.key === "Enter" ){
+            console.log("send message")
             enter_key_down.current = true;
-            if(message.length) hidden_butt.current.click();
+            if(message.length || media.length) hidden_butt.current.click();
         }
     }
 
     const clearInput = () => {
         editable_div.current.innerText = "";
-
     }
+    
 
     const handleInput = (event) => {
-        // console.log(event.target.childNodes[0]?.nodeName)
         if(!shift_key_down.current && enter_key_down.current){
             editable_div.current.innerText = "";
             return;
         } 
+        let elements = Array.from(event.target.children);
+        console.log("input: ", event.target.innerHTML)
+        console.log("elements: ", elements)
+        elements.forEach(async(el,idx)=>{
+            // chat-imgs-container.current
+            if(el.nodeName === "IMG"){
+                console.log("child Elements: ", el.nodeName);
+                
+                setMedia(old => [...old,{url:el.src,blob:null}]);
+                el.remove();
+            }
+        })
         setMessage(event.target.innerText);
     }
 
     const toggleSetting = () => {
         document.querySelector(".chat-settings-container").classList.toggle("active");
     }
+
+    useEffect(()=>{
+        console.log("media: ",media);
+    },[media])
 
     useEffect(()=>{
         console.log("%c aksjdnahjbalsfkbdlskbaldfbaljd",'background:purple');
@@ -268,7 +351,7 @@ export const Chat = () => {
             })
             socket.current.on("receive-message",(res)=>{
                 console.log("recieved-message event: ",res);
-                setConversation(prev => [...prev,res])
+                setConversation(prev => [...prev,...res])
             })
         }
     },[])    
@@ -308,18 +391,17 @@ export const Chat = () => {
         const jump_butt = document.querySelector(".jump-down-button");
         document.querySelector(".chat-wrapper").addEventListener('scroll',e=>{
             // console.log("helloor ; ",e.target.scrollTopMax)
-            // console.log("e.target.offsetHeight: ",e.target.offsetHeight," e.target.scrollHeight: ",e.target.scrollHeight," e.target.scrollTop: ",e.target.scrollTop," e.target.scrollHeight - e.target.offsetHeight: ",e.target.scrollHeight - e.target.offsetHeight,e.target.scrollHeight - e.target.offsetHeight === e.target.scrollTop);
-            if(e.target.scrollTopMax && e.target.scrollTopMax === e.target.scrollTop){
+            // console.log("e.target.offsetHeight: ",e.target.offsetHeight," e.target.scrollHeight: ",e.target.scrollHeight," e.target.scrollTop: ",parseInt(e.target.scrollTop)," e.target.scrollHeight - e.target.offsetHeight: ",e.target.scrollHeight - e.target.offsetHeight,e.target.scrollHeight - e.target.offsetHeight === e.target.scrollTop);
+            if(e.target.scrollTopMax && e.target.scrollTopMax === parseInt(e.target.scrollTop)){
                 jump_butt.classList.remove("active");
                 return;
             }
-            else if(e.target.scrollHeight - e.target.offsetHeight === e.target.scrollTop){
+            else if(e.target.scrollHeight - e.target.offsetHeight === parseInt(e.target.scrollTop)){
                 jump_butt.classList.remove("active");
                 return;
             }
             !jump_butt.classList.contains("active") && jump_butt.classList.add("active");
         })
-        
     },[])
 
     if(!currentRoom) return<></>
@@ -346,10 +428,24 @@ export const Chat = () => {
                 <Conversation uid={currentUser.uid} conversation={conversation} userData={userData} />
                 <section className="chat-input-section">
                     <form id="message-form" className="chat-input-container" onSubmit={handleSubmit}>
-                        <div ref={editable_div} contentEditable suppressContentEditableWarning onInput={handleInput} onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} className="chat-text-message">
+                        <div ref={imgsRef} style={(!media.length)?{display:"none"}:{}} className="chat-imgs-container">
+                            {media.map((url,idx)=>{
+                                return(
+                                    <React.Fragment key={idx}>
+                                        <ChatMediaFiles src={url} id={idx} callback={setMedia}/>
+                                    </React.Fragment>
+                                )
+                            })}
                         </div>
-                        <div className="chat-input-placeholder" style={message.length ? {display:"none"} : {}}>Message...</div>
-                    
+                        <div className="chat-input-wrapper">
+                            <div ref={editable_div} contentEditable suppressContentEditableWarning onInput={handleInput} onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} value={message} className="chat-text-message">
+                            </div>
+                            {
+                                (message.length)
+                                ?<></>
+                                : <div className="chat-input-placeholder">Message...</div>
+                            }
+                        </div>
                         <input ref={hidden_butt} type="submit" value="submit" hidden/>
                     </form>
                     <input id="send-butt" form="message-form" type="submit" value="send" onClick={clearInput}/>
@@ -400,10 +496,19 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
         }
     },[conversation])
 
+
     const handleLinks = (str) => {
         if(!str) return;
+        // console.log(str);
         let split_str = str;
         let new_str = []
+
+        /* a way to determine if the text has non-breaking space(&nbsp;)
+        &nbsp; only renders in html cant be detected in text
+        so we examine innerHTML to search for &nbsp;*/
+        let a = document.createElement("a");
+        a.innerHTML = split_str;
+        if(a.innerHTML.match(/&nbsp;/)) split_str = `${a.innerHTML.replace(/&nbsp;/g," ")}`;
 
         do{
             let match_idx = split_str.search(/https:\/\//);
@@ -413,8 +518,8 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
             }
             else if(match_idx === 0){
                 let whitespace_idx = split_str.search(" ");
-                let url = split_str.substring(0,whitespace_idx);
-                new_str.push(<a className="hyperlink" target="_blank" href={url}>{`${url}`}</a>)
+                let url = (whitespace_idx !== -1) ? split_str.substring(0,whitespace_idx) : split_str.substring(0);
+                new_str.push(<a className="hyperlink" target="_blank" href={url}>{`${url}`}</a>);                
                 split_str = (whitespace_idx === -1) ? "" : split_str.substring(whitespace_idx);
             }
             else{
@@ -424,14 +529,13 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
             }
         } while(split_str.length)
 
-
         return new_str.map((el,idx)=>{
             return (
                 <React.Fragment key={idx}>
                     {el}
                 </React.Fragment>
             )
-        }); 
+        })
     }
     
     
@@ -439,10 +543,7 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
         <section className="conv-container">
             <div className="chat-wrapper">
                 {conversation?.map((item,idx)=>{
-                    // console.log("item: ",item,userData)
-                    // console.log("prev: ",prev_date.current["year"]);
                     let date = new Date(item.timeStamp);
-                    // console.log("date: ",date);
                     let today;
                     let Y = date.getFullYear();
                     let M = date.getMonth();
@@ -457,15 +558,10 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
                         let d = new Date();
                         if(Y === d.getFullYear() && M === d.getMonth() && D === d.getDate()) today = "Today";
                     }
-                    if(display_time){
+                    if(display_time || prev_display_name.current !== item.sender){
                         display_name = true
                     } 
-                    else if( prev_display_name.current !== item.sender ){
-                        display_name = true;
-                    }
-                    prev_display_name.current = item.sender
-
-
+                    prev_display_name.current = item.sender;
                     
                     return(
                         <React.Fragment key={idx}>
@@ -482,10 +578,17 @@ const Conversation = React.memo(({uid,conversation,userData}) =>{
                                             :<></>
                                     }
                                     <div className="message-wrapper">
-                                        <p className="message-text">
-                                            {handleLinks(item?.text.trim())}
-                                            <span className="time"><sub>{displayTime(item.timeStamp)}</sub></span>
-                                        </p>
+                                        {
+                                            (item.text)
+                                            ?    <p className="message-text">
+                                                    {handleLinks(item?.text.trim())}
+                                                    <span className="time"><sub className="time-value">{displayTime(item.timeStamp)}</sub></span>
+                                                </p>
+                                            :<div className="message-img-wrapper">
+                                                <img className="message-img" src={item.img} alt={item.img} />
+                                                <span className="time"><span className="time-value">{displayTime(item.timeStamp)}</span></span>
+                                            </div>
+                                        }
                                     </div>
 
                                 </div>
