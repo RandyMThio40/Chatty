@@ -16,3 +16,38 @@
     border-radius:1rem;
     object-fit:cover;
 }
+
+#container-container{
+    display:flex;
+    width:100vw;
+    height:100vh;
+    flex-direction: column;
+    background-color:red;
+    overflow: hidden;
+    aside{
+        height:80px;
+        background-color: aqua;
+    }
+    #container{
+        height: 100%;
+        background-color:green;
+        overflow: hidden;
+        #wrapper{
+            height:100%;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            .le-item{
+                background-color: grey;
+                width:100%;
+                min-height: 50px;
+                margin: 5px 0;
+            }
+        }
+    }
+    #derp{
+        width:100%;
+        min-height:100px;
+        background-color:purple;
+
+    }
+}

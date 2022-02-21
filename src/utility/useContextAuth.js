@@ -1,10 +1,11 @@
 import React,{useContext, useState, useEffect} from 'react';
 import {auth,createUser,signOutUser, signInUser, database} from '../firebase.js';
-import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild } from "firebase/database";
+import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild, orderByKey, onChildChanged, limitToLast, endBefore, limitToFirst, startAt } from "firebase/database";
 import { updateProfile } from 'firebase/auth';
-import { uploadBytes,ref as storageRef, getDownloadURL, deleteObject } from 'firebase/storage';
+import { uploadBytes,ref as storageRef, getDownloadURL, deleteObject, list } from 'firebase/storage';
 import { storage } from '../firebase.js';
 import { v4 as uuidv4 } from 'uuid';
+import { async } from '@firebase/util';
 
 const AuthContext = React.createContext();
 
@@ -62,7 +63,7 @@ export function AuthProvider({children}){
 
     const updatePhotoURL = async(current_user,url) =>{
         return updateProfile(current_user,{photoURL:url}).then(()=>{
-            set(ref(database, `Users/${current_user.uid}/img_url`),url)
+            set(ref(database, `Users/${current_user.uid}/profile/img_url`),url)
             console.log("updated photoURL ");
         })
         .catch((error)=> {
@@ -73,7 +74,7 @@ export function AuthProvider({children}){
     const updateDisplayName = async( current_user, nickname ) => {
 
         return updateProfile(current_user,{displayName: nickname }).then(()=>{
-            set(ref(database, `Users/${current_user.uid}/name`),nickname)
+            set(ref(database, `Users/${current_user.uid}/profile/name`),nickname)
         })
         .catch((error)=> {
             console.log(error);
@@ -88,25 +89,6 @@ export function AuthProvider({children}){
             console.log(error);
         }
     }
-
-    // const makePrivateChat = (uid,user_uid) => {
-
-    //     const data_key = push(child(ref(database), 'ChatRoom')).key;
-    //     const obj1 = {
-    //         member:user_uid
-    //     }
-    //     const obj2 = {
-    //         member:uid
-    //     }
-    //     const updates = {};
-    //     updates[`Users/${uid}/chats/${data_key}/private`] = obj1;
-    //     updates[`Users/${user_uid}/chats/${data_key}/private`] = obj2;
-    //     updates[`ChatRooms/${data_key}/members/${uid}`] = true;
-    //     updates[`ChatRooms/${data_key}/members/${user_uid}`] = true;
-
-    //     return update(ref(database,`/`),updates);
-    // }
-
     
     const findChat = async(uid,user_uid) => {
         const que = query(ref(database,`/Users/${uid}/chats`),orderByChild("private/member"),equalTo(user_uid));
@@ -140,13 +122,14 @@ export function AuthProvider({children}){
             console.log("found existing chat");
             return update(ref(database,`/`),updates);
         }
-        const name1 = await get(ref(database,`Users/${uid}/name`));
-        const name2 = await get(ref(database,`Users/${user_uid}/name`));
+        const name1 = await get(ref(database,`Users/${uid}/profile/name`));
+        const name2 = await get(ref(database,`Users/${user_uid}/profile/name`));
 
         updates[`Users/${uid}/chats/${data_key}/private`] = obj1;
         updates[`Users/${user_uid}/chats/${data_key}/private`] = obj2;
-        updates[`ChatRooms/${data_key}/members/${uid}/name`] = name1.val();
-        updates[`ChatRooms/${data_key}/members/${user_uid}/name`] = name2.val();
+        updates[`ChatRooms/${data_key}/chat_info/members/${uid}/name`] = name1.val();
+        updates[`ChatRooms/${data_key}/chat_info/members/${user_uid}/name`] = name2.val();
+        updates[`ChatRooms/${data_key}/chat_info/type`] = "private";
         
         return update(ref(database,`/`),updates);
     }
@@ -179,12 +162,12 @@ export function AuthProvider({children}){
         return get(child(ref(database),`Users/${path}`));
     }
 
-    const getConv = async(chat_id) => {
+    const getConv = async(path) => {
         try{
-            const conv = await get(ref(database,`ChatRooms/${chat_id}`))
+            const conv = await get(ref(database,`ChatRooms/${path}`))
             const obj = {
-                    key: conv.key, 
-                    val: conv.val()
+                key: conv.key, 
+                val: conv.val()
             }
             return obj;
             
@@ -199,7 +182,7 @@ export function AuthProvider({children}){
             const updates = {}
             const url = await uploadBytes(storageRef(storage,`${chatID}/background-img`),file,metaData)
             .then(()=>getDownloadURL(storageRef(storage,`${chatID}/background-img`)));
-            updates[`${chatID}/background_img`] = url;
+            updates[`${chatID}/chat_info/background_img`] = url;
             update(ref(database,`/ChatRooms`),updates);
         } catch(err){
             console.log(err);
@@ -210,7 +193,7 @@ export function AuthProvider({children}){
     const [currentChatBG,setCurrentChatBG] = useState("");
     
     const observeChatBG = (path) => {
-        onValue(ref(database,`/ChatRooms/${path}/background_img`),(snapshot)=>{
+        onValue(ref(database,`/ChatRooms/${path}/chat_info/background_img`),(snapshot)=>{
             setCurrentChatBG(snapshot.val());
         })
     }
@@ -225,14 +208,17 @@ export function AuthProvider({children}){
         return url
     }
 
-    const sendMessage = (chat_id,data) => {
+    const sendMessage = async (chat_id,data) => {
         try{
             const updates = {};
+            const keys = []
             data.forEach(async(obj)=>{
-                updates[`${push(child(ref(database), 'ChatRooms')).key}`] = obj;
+                let key = push(child(ref(database), 'ChatRooms')).key
+                keys.push(key);
+                updates[key] = obj;
             })
             update(ref(database,`ChatRooms/${chat_id}/messages/`),updates);
-            return true;
+            return keys;
         } catch (err){
             return err;
         }
@@ -247,15 +233,58 @@ export function AuthProvider({children}){
         })
         switch(path){
             case "background": {
-                updates[`${chatID}/background_img`] = null;
+                updates[`${chatID}/chat_info/background_img`] = null;
                 break;
             }
             default: {
-                updates[`${chatID}/${path}`] = null;
+                updates[`${chatID}/messages/${path}`] = null;
                 break;
             }
         }
         update(ref(database,`/ChatRooms`),updates);
+    }
+    const deleteChatData = async(id,url,path,type) => {
+        const updates = {};
+        console.log("id: ",id," url: ",url," path: ",path, "type: ",type)
+        switch(type){
+            case "text": {
+                console.log("text del")
+                updates[`/${id}/${path}`] = null;
+                break;
+            }
+            case "img": {
+                console.log("img del")
+                await deleteObject(storageRef(storage,url)).then(()=>{
+                    console.log("file deleted successfully")
+                }).catch((error)=>{
+                    console.log(error);
+                })
+                updates[`/${id}/${path}`] = null;
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+        console.log("updoot")
+        update(ref(database,`/ChatRooms`),updates);
+    }
+
+    const getMedia = async(chat_id,token = null, max=10, trailing_number) => {
+        try{
+            const media_ref = await list(storageRef(storage,`${chat_id}/media`),{maxResults:max,pageToken:token});
+            let urls = [];
+            if(!media_ref.items.length === trailing_number) return -1;
+            for(let idx in media_ref.items){
+                if(idx < trailing_number) continue;
+                let url = await getDownloadURL(media_ref.items[idx]);
+                urls.push(url);
+            }
+            return ({token:media_ref.nextPageToken,img_urls:urls});
+        }catch(err){
+            console.log(err)
+            return -1;
+        }
     }
 
     const value = {
@@ -286,7 +315,9 @@ export function AuthProvider({children}){
         observeChatBG,
         clearChatBG,
         uploadToStorage,
-        deleteImg
+        deleteImg,
+        deleteChatData,
+        getMedia
     } 
     
     useEffect(()=>{
@@ -299,14 +330,6 @@ export function AuthProvider({children}){
         return unsubscribe;
     },[])
 
-
-    const tes = () => {
-        const updates = {};
-        for(let i = 0; i < 20; i++){
-            updates[`${push(child(ref(database), 'ChatRooms')).key}`] = {time:1,pp:"large"}
-        }
-        update(ref(database,`ChatRooms/testdirectory/messages/`),updates);
-    }
 
     useEffect(()=>{
         if(currentUser){

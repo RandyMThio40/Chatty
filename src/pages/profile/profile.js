@@ -6,7 +6,7 @@ import { storage } from '../../firebase';
 import './profile.css';
 
 export const Profile = () => {
-    const { currentUser, signout,setInactiveUser, writeDB, updatePhotoURL, updateDisplayName } = UseAuth();
+    const { currentUser, signout,setInactiveUser, updatePhotoURL, updateDisplayName } = UseAuth();
     const [name,setName] = useState("");
     const [file,setFIle] = useState();
     const [picture,setPicture] = useState();

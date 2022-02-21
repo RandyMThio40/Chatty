@@ -23,4 +23,48 @@
   -o-object-fit: cover;
      object-fit: cover;
 }
+
+#container-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  background-color: red;
+  overflow: hidden;
+}
+
+#container-container aside {
+  height: 80px;
+  background-color: aqua;
+}
+
+#container-container #container {
+  height: 100%;
+  background-color: green;
+  overflow: hidden;
+}
+
+#container-container #container #wrapper {
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+#container-container #container #wrapper .le-item {
+  background-color: grey;
+  width: 100%;
+  min-height: 50px;
+  margin: 5px 0;
+}
+
+#container-container #derp {
+  width: 100%;
+  min-height: 100px;
+  background-color: purple;
+}
 /*# sourceMappingURL=home.css.map */

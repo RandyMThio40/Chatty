@@ -41,7 +41,7 @@ export const Search = () => {
         let arr = [];
         for( let i in data){
             if(i === currentUser.uid) continue
-            arr.push({uid:i,data:data[i]});
+            arr.push({uid:i,data:data[i].profile});
         }
         console.log("Search: ",arr);
         setUsers(arr);
@@ -71,19 +71,19 @@ export const Search = () => {
                     let disabled = false;
                     if(friends === null) { }
                     else if(friends[el.uid] === undefined){ }
-                    else if(!friends[el.uid]) { return <></> }
+                    else if(!friends[el.uid]) { return <React.Fragment key={idx}/> }
                     else if (friends[el.uid]) { 
                         className = "friend";
                         disabled = true;
                     } 
-                    if(friendRequests && friendRequests[el.uid]) return <></>
+                    if(friendRequests && friendRequests[el.uid]) return <React.Fragment key={idx}/>
                     return(
                         
                         <div className="select-user-option" key={idx}>
                             {
                                 (el.data.img_url) 
                                 ? <img className="select-user-img incomplete" onLoad={isComplete} src={el.data.img_url} alt={el.data.img_url} />
-                                : <p className='alt-user-img'><span>{el.data.name[0]}</span></p>
+                                : <p className='alt-user-img'><span>{el.data?.name[0]}</span></p>
                             }
                             <div>
                                 <p className="select-user-name">{el.data.name}</p>  
@@ -116,7 +116,7 @@ export const FriendRequests = () => {
                 continue;
             }
             let res = await fetchUsersData(i);
-            friend_requests.push({uid:res.key,name:res.val().name,pic:res.val().img_url});
+            friend_requests.push({uid:res.key,name:res.val().profile.name,pic:res.val().profile.img_url});
         }
     
         setFriendReqs(friend_requests);
@@ -166,7 +166,7 @@ export const Friends = () => {
         for(let i in friends){
             try{
                 let chat_ref = await findChat(currentUser.uid,i);
-                let data = await fetchUsersData(i).then((snapshot)=>{ return {uid:snapshot.key,name:snapshot.val().name,pic:snapshot.val().img_url,chat_id:chat_ref}});
+                let data = await fetchUsersData(i).then((snapshot)=>{ return {uid:snapshot.key,name:snapshot.val().profile.name,pic:snapshot.val().profile.img_url,chat_id:chat_ref}});
                 arr.push(data);
                 console.log(`convertToArr function data: `,data, friends);
             } catch( err ){
