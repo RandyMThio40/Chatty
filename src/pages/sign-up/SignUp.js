@@ -1,7 +1,26 @@
 import React from 'react';
 import './SignUp.css'
 import { UseAuth } from '../../utility/useContextAuth.js'
-import { Navigate, useNavigate, Link } from 'react-router-dom';
+import { Navigate, useNavigate, Link, Outlet } from 'react-router-dom';
+
+
+export const AuthLayout = () => {
+
+    const style = {
+        position:"absolute",
+        top:0,
+        left:0,
+        fontSize:"1.2rem",
+        zIndex:1,
+    }
+
+    return(
+        <React.Fragment>
+            <div className="App-title" >chatty</div>
+            <Outlet/>
+        </React.Fragment>
+    )
+}
 
 
 const SignUp = () => {
@@ -106,7 +125,6 @@ const SignUp = () => {
 
     const handleChanges = (event,type) => {
         event.preventDefault();
-
         switch(type){
             case FORM_TYPE.EMAIL: {
                 setEmail(event.target.value);
@@ -133,7 +151,6 @@ const SignUp = () => {
                 break;
             }
         }
-
     }
 
     React.useEffect(()=>{
@@ -149,37 +166,43 @@ const SignUp = () => {
     return(
         <div className="signup-container">
             <div className="auth-container">
+                <h2>Sign up</h2>
                 <form className="auth-form" id="signup_form"  onSubmit={(e)=>handleSubmit(e)}>
                     <div style={emailError?.length ? {} : {display:"none"}} className="auth-error-container" >
                         {emailError}
                     </div>
-                    <div className="auth-field-container">
-                        <label htmlFor="FirstName">First name: </label>
-                        <input type="text" id="first_name" name="FirstName" placeholder="First name" onChange={(e)=>handleChanges(e,FORM_TYPE.FIRSTNAME)} value={firstName} autoComplete="true" required/>
+                    <div className="name-field-container">
+                        <div className={`auth-field-container ${(firstName) ? `active` : ``}`}>
+                            <label className="placeholder" htmlFor="FirstName">First</label>
+                            <input type="text" id="first_name" name="FirstName"  onChange={(e)=>handleChanges(e,FORM_TYPE.FIRSTNAME)} value={firstName} autoComplete="true" required/>
+                        </div>
+                        <div className={`auth-field-container ${(lastName) ? `active` : ``}`}>
+                            <label className="placeholder"  htmlFor="LastName">Last</label>
+                            <input type="text" id="last_name" name="LastName"  onChange={(e)=>handleChanges(e,FORM_TYPE.LASTNAME)} value={lastName} autoComplete="true" required/>
+                        </div>
                     </div>
-                    <div className="auth-field-container">
-                        <label htmlFor="LastName">Last name: </label>
-                        <input type="text" id="last_name" name="LastName" placeholder="Last name" onChange={(e)=>handleChanges(e,FORM_TYPE.LASTNAME)} value={lastName} autoComplete="true" required/>
+                    <div className={`auth-field-container ${(email) ? `active` : ``}`}>
+                        <label className="placeholder"  htmlFor="email">Email</label>
+                        <input type="email" id="user_email" name="email"  onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} value={email} autoComplete="true" required/>
                     </div>
-                    <div className="auth-field-container">
-                        <label htmlFor="email">Email: </label>
-                        <input type="email" id="user_email" name="email" placeholder="email" onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} value={email} autoComplete="true" required/>
-                    </div>
-                    <div className="auth-field-container">
-                        <label htmlFor="password">Password: </label>
-                        <input type={`${concealed ? "password" : "text"}`} id="password" name="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASSWORD)} value={password} autoComplete="true" required/>
+                    <div className="password-field-container">
+                        <div className={`auth-field-container ${(password) ? `active` : ``}`}>
+                            <label className="placeholder" htmlFor="password">Password</label>
+                            <input type={`${concealed ? "password" : "text"}`} id="password" name="password"  onChange={(e)=>handleChanges(e,FORM_TYPE.PASSWORD)} value={password} autoComplete="true" required/>
+                        </div>
                         <span><button htmlFor="not" type="button" className="concealing-eye" onClick={(e)=>{
                             e.preventDefault();
                             e.target?.classList?.toggle("active");
                             setConcealed(!concealed);
                         }}></button></span>
                     </div>
+
                     <div style={(!(confirmPass.length && password !== confirmPass)) ? {display:"none"} : null} className="auth-error-container">
                         passwords don't match!
                     </div>
-                    <div className="auth-field-container">
-                        <label>Confirm password: </label>
-                        <input type="password" placeholder="password" onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true"/>
+                    <div className={`auth-field-container ${(confirmPass) ? `active` : ``}`}>
+                        <label className="placeholder" htmlFor="confirm-password" >Confirm password</label>
+                        <input type="password" name="confirm-password"  onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true"/>
                     </div>
                     <ul style={(error?.length) ? {} :{display:"none"}} className="auth-error-container">
                         Your password is {passwordStrength}, add:
@@ -189,8 +212,7 @@ const SignUp = () => {
                             )
                         })}
                     </ul>
-                    <input type="submit" value="Submit"></input>
-                    
+                    <input type="submit" value="Sign Up"></input>
                 </form>
                 <hr/>
                 <div className="">

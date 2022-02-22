@@ -188,7 +188,7 @@ export const ChatLayout = () => {
 
     useEffect(()=>{
         getData();
-        socket.current = io("http://localhost:5000");
+        socket.current = io("https://chatty-deploy-heroku.herokuapp.com/");
         socket.current.on("is-connected",(res)=>{
             console.log("ressss: ", socket.current.id);
         })
@@ -310,7 +310,7 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
 
     const getImageData = async (url) => {
         try{
-            let res = await axios.post("http://localhost:3001/findImg",{url:url},config);
+            let res = await axios.post("https://chatty-deploy-heroku.herokuapp.com/findImg",{url:url},config);
             let blob = new Blob([new Uint8Array(res.data.buffer.data)],{type:"image/png"})
             if(!cancel.current){
                 callback(prev => {

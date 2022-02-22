@@ -1,4 +1,138 @@
-.login-container {
+.login-landing {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background-color: #444655;
   width: 100vw;
+  height: 100vh;
+}
+
+.login-landing input[type="submit"] {
+  background-color: #487BE9;
+  border: none;
+  color: white;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.login-landing input[type="submit"]:hover {
+  background-color: #486be9;
+}
+
+.login-landing .auth-field-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%;
+  color: #487BE9;
+  background-color: #ffffff43;
+  border-radius: 0.2rem;
+}
+
+.login-landing .auth-field-container:focus-within .placeholder, .login-landing .auth-field-container.active .placeholder {
+  top: 0;
+  font-size: 0.8rem;
+  -webkit-transform: translate(0, 0%);
+          transform: translate(0, 0%);
+}
+
+.login-landing .auth-field-container:focus-within::before, .login-landing .auth-field-container.active::before {
+  -webkit-transform-origin: left;
+          transform-origin: left;
+  -webkit-transform: scaleX(1);
+          transform: scaleX(1);
+}
+
+.login-landing .auth-field-container::before {
+  content: "";
+  position: absolute;
+  bottom: 0.3rem;
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  -webkit-transform-origin: right;
+          transform-origin: right;
+  -webkit-transform: scaleX(0);
+          transform: scaleX(0);
+  -webkit-transition: -webkit-transform 500ms ease;
+  transition: -webkit-transform 500ms ease;
+  transition: transform 500ms ease;
+  transition: transform 500ms ease, -webkit-transform 500ms ease;
+  z-index: 1;
+}
+
+.login-landing .auth-field-container input {
+  width: 100%;
+  padding: 0.5rem;
+  padding-top: 1rem;
+  background-color: transparent;
+  font-size: 1.1rem;
+  outline: none;
+  border: none;
+  border-radius: inherit;
+}
+
+.login-landing .auth-field-container input:-webkit-autofill, .login-landing .auth-field-container input:-webkit-autofill:hover, .login-landing .auth-field-container input:-webkit-autofill:focus, .login-landing .auth-field-container input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+}
+
+.login-landing .auth-field-container .placeholder {
+  position: absolute;
+  top: 50%;
+  left: 0.5rem;
+  font-size: 1.1rem;
+  -webkit-transition: top 500ms ease , font-size 500ms ease, -webkit-transform 500ms ease;
+  transition: top 500ms ease , font-size 500ms ease, -webkit-transform 500ms ease;
+  transition: top 500ms ease , font-size 500ms ease, transform 500ms ease;
+  transition: top 500ms ease , font-size 500ms ease, transform 500ms ease , -webkit-transform 500ms ease;
+  -webkit-transform: translate(0, -50%);
+          transform: translate(0, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.login-landing .login-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-width: 300px;
+  width: 95vw;
+  max-width: 500px;
+  background-color: #A8AABC;
+  padding: 20px;
+  border-radius: 1rem;
+}
+
+.login-landing .login-container h2 {
+  width: 100%;
+  margin-bottom: 10px;
+  font-size: 1.9rem;
+}
+
+.login-landing .login-container .auth-form {
+  width: 100%;
+}
+
+.login-landing .signup-link {
+  margin-top: 10px;
 }
 /*# sourceMappingURL=Login.css.map */

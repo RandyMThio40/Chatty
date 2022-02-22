@@ -45,6 +45,11 @@ export const Home = () => {
         
     }
 
+    const tes = async () => {
+        const res = await axios.get("https://chatty-deploy-heroku.herokuapp.com/hello");
+        console.log(res.data);
+    } 
+
     const generateUUID = ()=>{
         let uuid = v4();
         console.log("uuid: ", v4());
@@ -73,6 +78,7 @@ export const Home = () => {
             }
             return prev
         })
+        tes();
     },[])
 
  

@@ -2,6 +2,7 @@ import React,{useState} from 'react';
 import { UseAuth } from '../../utility/useContextAuth';
 import { useNavigate } from 'react-router';
 import './Login.css';
+import {Link} from 'react-router-dom';
 
 
 export const Login = () => {
@@ -47,20 +48,23 @@ export const Login = () => {
     }
 
     return(
-       <section className="login-container">
-            <h1>Login</h1>
-            <div className="auth-container">
+       <section className="login-landing">
+            <div className="login-container">
+                <h2>Login</h2>
                 <form className="auth-form" onSubmit={handleSubmit}>
-                    <div className="auth-field-container">
-                        <label htmlFor="email">Email: </label>
+                    <div className={`auth-field-container ${email ? `active` : ``}`}>
+                        <label className="placeholder" htmlFor="email">Email</label>
                         <input type="email" name="email" onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} autoComplete="true" />
                     </div>
-                    <div className="auth-field-container">
-                        <label htmlFor="email">Password: </label>
+                    <div className={`auth-field-container ${password ? `active` : ``}`}>
+                        <label className="placeholder" htmlFor="email">Password</label>
                         <input type="password" name="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASS)} autoComplete="true"/>
                     </div>
-                    <input type="submit" value="sign in" />
+                    <input type="submit" value="Sign in" />
                 </form>  
+                <p className="signup-link">
+                    Don't have an account? <Link to="/">Sign up</Link>
+                </p>
             </div>
        </section>
     )

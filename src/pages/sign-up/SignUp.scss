@@ -1,5 +1,16 @@
 @import "../../utility/variables";
 
+.App-title{
+    position: absolute;
+    top:0;
+    left:0;
+    padding:10px;
+    color:white;
+    font-size:2rem;
+    font-weight:300;
+    z-index:1;
+}
+
 .signup-container{
     display: flex;
     align-items: center;
@@ -16,67 +27,44 @@
     transition: width 1s linear;
 }
 
+.name-field-container{
+    display:flex;
+    gap:5px;
+}
+
 .auth-container{
+    @import '../../utility/authForm';
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width:90vw;
+    width:95vw;
     max-width:500px;
-    min-height:400px;
-    height:80vh;
-    max-height:600px;
+    padding:20px;
+    border-radius:1rem;
     background-color: $bg-signup;
-    // margin: 0 auto;
+    h2{
+        width: 100%;
+        margin-bottom: 10px;
+        font-size:$fs-header;
+    }
     hr{
-        width:100%;
-        height:1px;
-        border-color: black;
+        width: 90%;
+        height: 1px;
+        background-color: $bg-landing;
+        border: none;
+        border-radius: 1rem;
         margin: 20px 0;
     }
 }
 
+
 .auth-form{
-    width:max-content;
-
-    .auth-field-container{
-        &:nth-child(5){
-            display: flex;
-            align-items: center;
-        }
-        span{
-            display:inherit;
-            align-items: inherit;
-            margin-left:0.4rem;
-            .concealing-eye{
-                width:0.8rem;
-                height:0.8rem;
-                background-color:transparent;
-                border: 1px solid black; 
-                border-radius:50%;
-                &::before{
-                    content:"";
-                    position: absolute;
-                    top:50%;
-                    left:50%;
-                    height:1.1rem;
-                    width:1px;
-                    background-color:black;
-                    transform: translate(-50%,-50%) rotate(45deg);
-
-                }
-                
-            }
-            .concealing-eye.active{
-                &::before{
-                    opacity: 0;
-                }
-            }
-          
-
-        }
-        
-    }
+    display: flex;
+    flex-direction: column;
+    gap:$gap-form;
+    width: 100%;
+    
     #signup-pass-error{
         display: block;
     }
@@ -91,6 +79,43 @@
             list-style: none;
             &::before{
                 content:"• ";
+            }
+        }
+    }
+}
+
+.password-field-container{
+    display: flex;
+    align-items: center;
+    background-color: $background-input;
+    .auth-field-container{
+        background-color: unset;
+    }
+    span{
+        display:flex;
+        align-items:center;
+        height: 100%;
+        margin: 0 0.6rem;
+        .concealing-eye{
+            width:0.8rem;
+            height:0.8rem;
+            background-color:transparent;
+            border: 1px solid black; 
+            border-radius:50%;
+            &::before{
+                content:"";
+                position: absolute;
+                top:50%;
+                left:50%;
+                height:1.1rem;
+                width:1px;
+                background-color:black;
+                transform: translate(-50%,-50%) rotate(45deg);
+            }
+        }
+        .concealing-eye.active{
+            &::before{
+                opacity: 0;
             }
         }
     }

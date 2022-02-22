@@ -1,3 +1,37 @@
-.login-container{
+@import '../../utility/variables';
+
+
+.login-landing{
+    @import '../../utility/authForm';
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $bg-landing;
+    // @extend .auth-field-container;
     width:100vw;
+    height:100vh;
+    .login-container{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        min-width:300px;
+        width: 95vw;
+        max-width: 500px;
+        background-color:$bg-signup;
+        padding:20px;
+        border-radius: 1rem;
+        h2{
+            width:100%;
+            margin-bottom: 10px;    
+            font-size:$fs-header;
+        }
+        .auth-form{
+            width:100%;
+        }
+
+    }
+    .signup-link{
+        margin-top:10px;
+    }
 }
