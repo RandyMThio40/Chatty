@@ -287,6 +287,12 @@ export function AuthProvider({children}){
         }
     }
 
+    const observeValue = (path,setState) => {
+        onValue(ref(database,path),(snapshot)=>{
+            setState(snapshot.val())
+        })
+    }
+
     const value = {
         currentUser,
         friends,
@@ -317,7 +323,8 @@ export function AuthProvider({children}){
         uploadToStorage,
         deleteImg,
         deleteChatData,
-        getMedia
+        getMedia,
+        observeValue
     } 
     
     useEffect(()=>{

@@ -34,6 +34,7 @@ const SignUp = () => {
     const {currentUser, signup, updateDisplayName,setActiveUser } = UseAuth();
     const [error,setError] = React.useState([]);
     const [emailError,setEmailError] = React.useState("");
+    const [isMatch,setIsMatch] = React.useState(false);
     const navigate = useNavigate();
     const FORM_TYPE = {
         EMAIL:"email",
@@ -48,8 +49,10 @@ const SignUp = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        console.log(password,email,concealed);
-        if(password !== confirmPass) return;
+        if(password !== confirmPass) {
+            setIsMatch(true);
+            return;
+        }
         let password_strength = 100;
         let error_messages = [];
 
@@ -197,7 +200,7 @@ const SignUp = () => {
                         }}></button></span>
                     </div>
 
-                    <div style={(!(confirmPass.length && password !== confirmPass)) ? {display:"none"} : null} className="auth-error-container">
+                    <div style={(!isMatch) ? {display:"none"} : null} className="auth-error-container">
                         passwords don't match!
                     </div>
                     <div className={`auth-field-container ${(confirmPass) ? `active` : ``}`}>
@@ -215,9 +218,7 @@ const SignUp = () => {
                     <input type="submit" value="Sign Up"></input>
                 </form>
                 <hr/>
-                <div className="">
-                   <span> already have an account? <Link to="/Login" >Login</Link></span>
-                </div>
+                <span> already have an account? <button className="button-link" onClick={()=>{navigate("Login")}}>Login</button></span>
             </div>
             <div className="growing">
 

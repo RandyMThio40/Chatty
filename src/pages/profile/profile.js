@@ -11,10 +11,12 @@ export const Profile = () => {
     const [file,setFIle] = useState();
     const [picture,setPicture] = useState();
     const [loading,setLoading] = useState(true);
+    const [visible,setVisible] = useState(false);
     const inref = useRef();
+    const [error,setError] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleIMGSubmit = async (e) => {
         e.preventDefault();
         
         const metadata = {
@@ -23,15 +25,23 @@ export const Profile = () => {
         const url = await uploadBytes(storageRef(storage,`${currentUser.uid}/ProfilePics/userImage`),file,metadata)
         .then(()=>getDownloadURL(storageRef(storage,`${currentUser.uid}/ProfilePics/userImage`)));
         updatePhotoURL(currentUser,url);
-        updateDisplayName(currentUser,name)
+        // updateDisplayName(currentUser,name)
         setPicture(url)
+    }
+
+    const handleMakeInvisible = () => {
+        setVisible(false);
+        setName("")
+    }
+    const handleNameSubmit = (e) => {
+        e.preventDefault();
+        updateDisplayName(currentUser,name);
+        handleMakeInvisible();
     }
 
     const handleImageChange  = (e) => {
         e.target.files[0] && setFIle(e.target.files[0]);
         setPicture(window.URL.createObjectURL(e.target.files[0]));
-
-        
     }
 
     const handleValue = useCallback(() => {
@@ -47,6 +57,10 @@ export const Profile = () => {
         signout().then(()=>navigate("/",{replace: true}))
     }
 
+    const handleMakeVisible = () => {
+        setVisible(true);
+    }
+
     
     useEffect(()=>{
         handleValue();
@@ -57,24 +71,38 @@ export const Profile = () => {
 
     return(
         <section className="profile-container">
-            <span className="backbutton" onClick={()=>navigate(-1)}> Go Back </span>
+            {
+                (visible)
+                ?  <div className="modal">
+                        <form  onSubmit={handleNameSubmit}>
+                            <h3>Enter Name</h3>
+                            <div>
+                                <label className={`${name ? `active` : ``}`}>Name</label>
+                                <input type="text" onChange={(e)=>setName(e.target.value)} value={name} required/>
+                            </div>
+                            <p id="error-message" style={error ? {} : {display:"none"}}>
+                                * can't be blank.
+                            </p>
+                            <div className='butt-cont'>
+                                <button type="button" accessKey='c' onClick={handleMakeInvisible}>cancel</button>
+                                <input type="submit" value="Submit" accessKey='s'/>
+                            </div>
+                        </form>
+                    </div>
+                : <></>
+            }
             <h1>Profile page</h1>
             <div className="profile-wrapper">
                 <div className="profile-input-container">
-                    <form onSubmit={handleSubmit}>
+                    <button className="change-name-button" onClick={handleMakeVisible}>Change Name</button>
+                    <form className='profile-form' onSubmit={handleIMGSubmit}>
                         <div>
-                            <label>name: </label>
-                            <input type="text" placeholder="enter name" onChange={(e)=>setName(e.target.value)} value={name} />
-                            <br/>
-                            <div>
-                                <input ref={inref} id="file-input" type="file" accept="image/*"  onChange={handleImageChange}/>
-                                <button type="button" onClick={handleFileInput}>choose file</button>
-                            </div>
+                            <input ref={inref} id="file-input" type="file" accept="image/*"  onChange={handleImageChange} hidden />
+                            <button type="button" onClick={handleFileInput}>Choose file</button>
                         </div>
-                        <input type="submit" value="send"/>
-
+                        <input type="submit" value="Change"/>
                     </form>
-                        <button onClick={handleSignOut}>sign out</button>
+                    <button className='signout' onClick={handleSignOut}>Sign out</button>
                 </div>
                
                 <div>

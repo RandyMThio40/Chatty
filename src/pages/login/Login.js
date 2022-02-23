@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import { UseAuth } from '../../utility/useContextAuth';
 import { useNavigate } from 'react-router';
 import './Login.css';
@@ -10,6 +10,7 @@ export const Login = () => {
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
     const navigate = useNavigate();
+    const [error,setError] = useState(false);
 
     const FORM_TYPE = {
         EMAIL:"email",
@@ -42,10 +43,16 @@ export const Login = () => {
             setPassword("");
             navigate(`/${res?.user?.uid}/Home`,{replace:true});
         }).catch((error)=>{
+            setError(true);
             console.log(error)
         })
-
     }
+
+    useEffect(()=>{
+        return ()=>{
+            setError(false);
+        }
+    },[])
 
     return(
        <section className="login-landing">
@@ -60,10 +67,18 @@ export const Login = () => {
                         <label className="placeholder" htmlFor="email">Password</label>
                         <input type="password" name="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASS)} autoComplete="true"/>
                     </div>
+                    {
+                        (error)
+                        ?   <div id="error-message">
+                                * incorrect username/password 
+                            </div>
+                        : <></>
+                    }
+                   
                     <input type="submit" value="Sign in" />
                 </form>  
                 <p className="signup-link">
-                    Don't have an account? <Link to="/">Sign up</Link>
+                    Don't have an account? <button className="button-link" onClick={()=>{navigate("/")}}>Sign up</button>
                 </p>
             </div>
        </section>

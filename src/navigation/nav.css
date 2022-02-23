@@ -12,7 +12,7 @@
   width: 100vw;
   height: 60px;
   font-size: 1.1rem;
-  background-color: red;
+  background-color: #A8AABC;
   padding: 0 var(--padding-LR);
 }
 
@@ -55,6 +55,11 @@
 .Nav-bar .user-setting .username-container {
   margin: 0 0.4rem;
   pointer-events: none;
+}
+
+.Nav-bar .user-setting .username-container .username {
+  white-space: nowrap;
+  max-width: 200px;
 }
 
 .Nav-bar .user-setting::before {

@@ -5,9 +5,22 @@ input[type="submit"]{
     border:none;
     color:white;
     padding: $padding-input;
+    font-size:$fs-input;
+    border-radius:0.2rem;
     cursor: pointer;
     &:hover{
         background-color: adjust-hue($color: $color-input, $degrees: 6);
+    }
+}
+
+.button-link{
+    background-color: transparent;
+    border: none;
+    font-size: inherit;
+    color:blue;
+    text-decoration: underline;
+    &:active{
+        color:red;
     }
 }
 

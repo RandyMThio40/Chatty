@@ -21,7 +21,7 @@
       -ms-flex-pack: center;
           justify-content: center;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
   background-color: #444655;
 }
 
@@ -66,11 +66,25 @@
   border: none;
   color: white;
   padding: 0.5rem;
+  font-size: 1.1rem;
+  border-radius: 0.2rem;
   cursor: pointer;
 }
 
 .auth-container input[type="submit"]:hover {
   background-color: #486be9;
+}
+
+.auth-container .button-link {
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  color: blue;
+  text-decoration: underline;
+}
+
+.auth-container .button-link:active {
+  color: red;
 }
 
 .auth-container .auth-field-container {

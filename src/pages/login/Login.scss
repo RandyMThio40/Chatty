@@ -9,7 +9,7 @@
     background-color: $bg-landing;
     // @extend .auth-field-container;
     width:100vw;
-    height:100vh;
+    height:100%;
     .login-container{
         display: flex;
         align-items: center;
@@ -29,7 +29,14 @@
         .auth-form{
             width:100%;
         }
-
+        #error-message{
+            width:100%;
+            padding:5px;
+            background-color: red;
+            color:white;
+            border-radius:0.2rem;
+            margin:0px 0;
+        }
     }
     .signup-link{
         margin-top:10px;

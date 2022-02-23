@@ -10,7 +10,7 @@
           justify-content: center;
   background-color: #444655;
   width: 100vw;
-  height: 100vh;
+  height: 100%;
 }
 
 .login-landing input[type="submit"] {
@@ -18,11 +18,25 @@
   border: none;
   color: white;
   padding: 0.5rem;
+  font-size: 1.1rem;
+  border-radius: 0.2rem;
   cursor: pointer;
 }
 
 .login-landing input[type="submit"]:hover {
   background-color: #486be9;
+}
+
+.login-landing .button-link {
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  color: blue;
+  text-decoration: underline;
+}
+
+.login-landing .button-link:active {
+  color: red;
 }
 
 .login-landing .auth-field-container {
@@ -130,6 +144,15 @@
 
 .login-landing .login-container .auth-form {
   width: 100%;
+}
+
+.login-landing .login-container #error-message {
+  width: 100%;
+  padding: 5px;
+  background-color: red;
+  color: white;
+  border-radius: 0.2rem;
+  margin: 0px 0;
 }
 
 .login-landing .signup-link {
