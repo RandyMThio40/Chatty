@@ -25,6 +25,7 @@ export const AuthLayout = () => {
 
 const SignUp = () => {
     const [concealed,setConcealed] = React.useState(true); 
+    const [concealed2,setConcealed2] = React.useState(true); 
     const [firstName,setFirstName] = React.useState("");
     const [lastName,setLastName] = React.useState("");
     const [email,setEmail] = React.useState("");
@@ -199,13 +200,19 @@ const SignUp = () => {
                             setConcealed(!concealed);
                         }}></button></span>
                     </div>
-
                     <div style={(!isMatch) ? {display:"none"} : null} className="auth-error-container">
                         passwords don't match!
                     </div>
-                    <div className={`auth-field-container ${(confirmPass) ? `active` : ``}`}>
-                        <label className="placeholder" htmlFor="confirm-password" >Confirm password</label>
-                        <input type="password" name="confirm-password"  onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true"/>
+                    <div className="password-field-container">
+                        <div className={`auth-field-container ${(confirmPass) ? `active` : ``}`}>
+                            <label className="placeholder" htmlFor="confirm-password" >Confirm password</label>
+                            <input type={concealed2 ? "password" : "text"} name="confirm-password"  onChange={(e)=>handleChanges(e,FORM_TYPE.CONFIRMATION)} value={confirmPass}  autoComplete="true" required/>
+                        </div>
+                        <span><button htmlFor="not" type="button" className="concealing-eye" onClick={(e)=>{
+                                e.preventDefault();
+                                e.target?.classList?.toggle("active");
+                                setConcealed2(!concealed2);
+                            }}></button></span>
                     </div>
                     <ul style={(error?.length) ? {} :{display:"none"}} className="auth-error-container">
                         Your password is {passwordStrength}, add:

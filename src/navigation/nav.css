@@ -39,6 +39,7 @@
   pointer-events: none;
 }
 
+.Nav-bar .user-setting .profile-image-container .default-image,
 .Nav-bar .user-setting .profile-image-container .profile-image {
   --length:3rem;
   width: var(--length);
@@ -48,6 +49,7 @@
      object-fit: cover;
 }
 
+.Nav-bar .user-setting .profile-image-container .default-image.incomplete,
 .Nav-bar .user-setting .profile-image-container .profile-image.incomplete {
   opacity: 0;
 }
@@ -59,7 +61,9 @@
 
 .Nav-bar .user-setting .username-container .username {
   white-space: nowrap;
-  max-width: 200px;
+  max-width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .Nav-bar .user-setting::before {

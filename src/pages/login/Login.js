@@ -61,11 +61,11 @@ export const Login = () => {
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className={`auth-field-container ${email ? `active` : ``}`}>
                         <label className="placeholder" htmlFor="email">Email</label>
-                        <input type="email" name="email" onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} autoComplete="true" />
+                        <input type="email" name="email" onChange={(e)=>handleChanges(e,FORM_TYPE.EMAIL)} autoComplete="true" required />
                     </div>
                     <div className={`auth-field-container ${password ? `active` : ``}`}>
                         <label className="placeholder" htmlFor="email">Password</label>
-                        <input type="password" name="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASS)} autoComplete="true"/>
+                        <input type="password" name="password" onChange={(e)=>handleChanges(e,FORM_TYPE.PASS)} autoComplete="true" required/>
                     </div>
                     {
                         (error)
