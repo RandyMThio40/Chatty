@@ -327,7 +327,7 @@
 }
 
 .message-time {
-  float: right;
+  float: bottom right;
   padding-left: 5px;
 }
 
@@ -817,9 +817,6 @@
 
 .media-container .media-overhead h3 {
   text-align: center;
-}
-
-.media-container .media-overhead h3 {
   -ms-flex-item-align: center;
       -ms-grid-row-align: center;
       align-self: center;
@@ -933,6 +930,8 @@
 .dot-container {
   --length:5px;
   padding: 5px;
+  background-color: transparent;
+  border: none;
   cursor: pointer;
 }
 
@@ -988,7 +987,12 @@
 
 .copy-message:hover,
 .delete-container:hover {
-  background-color: rgba(255, 255, 255, 0.439);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.copy-message:active,
+.delete-container:active {
+  opacity: 0.5;
 }
 
 .copy-message {

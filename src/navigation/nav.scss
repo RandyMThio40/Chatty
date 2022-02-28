@@ -7,82 +7,113 @@
     justify-content: space-between;
     width:100vw;
     height:60px;
+    color:white;
     font-size: $fs-navbar;
-    background-color:$bg-signup;
+    background-color:$bg-landing;
     padding: 0 var(--padding-LR);
+    border-bottom: 1px solid $bg-signup;
     a{
         text-decoration: none;
-        color:initial;
+        color:white;
     }
-    .user-setting{
-        display: flex;
-        align-items: center;
-        width:250px;
-        height: inherit;
-        padding:0.2rem 0.6rem;
-        flex-shrink: 0;
-
-
-        .profile-image-container{
-            .default-image,
-            .profile-image{
-                --length:3rem;
-                width:var(--length);
-                height:var(--length);
-                border-radius: 50%;
-                object-fit: cover;
-                &.incomplete{
-                   opacity:0;
-                }
-            }
-            pointer-events: none;
-        }
-
-    
-        .username-container{
-            margin: 0 0.4rem;
-            .username{
-                white-space: nowrap;
-                max-width: 150px;
-                text-overflow: ellipsis;
-                overflow: hidden;
-            }
-            pointer-events: none;
-        }   
-        &::before{
-            content:"";
-            position: absolute;
-            left:0;
-            height:80%;
-            border-left:1px solid rgb(19, 19, 19);
-        }
-        &::after{
-            --length:10px;
-            content:"";
-            width:var(--length);
-            height:var(--length);
-            border-left:1px solid black;
-            border-top:1px solid black;
-            transform:rotate(-135deg);
-            transition:transform 500ms ease;
-        }
-        &.active::after{
+    .user-setting-container{
+        &.active  .user-setting-wrapper::after{
             transform: rotate(45deg);
         }
-
+        
+        .user-setting-wrapper{
+            display: flex;
+            align-items: center;
+            width:250px;
+            height: inherit;
+            padding:0.2rem 0.6rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            &:focus-within{
+                outline: 2px solid rgb(40, 140, 247);
+            }
+            .hidden-butt{
+                position: absolute;
+                opacity: 0;
+            }
+            .profile-image-container{
+                display: flex;
+                align-items: center;
+                // pointer-events: none;
+                .default-image,
+                .profile-image{
+                    --length:3.2rem;
+                    width:var(--length);
+                    height:var(--length);
+                    border-radius: 50%;
+                    object-fit: cover;
+                    &.incomplete{
+                       opacity:0;
+                    }
+                }
+            }
+    
+            .username{
+                flex-grow: 1;
+                margin: 0 0.6rem;
+                width: 100%;
+                font-size:1.5rem;
+                text-align: center;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                pointer-events: none;
+                overflow: hidden;
+            }
+            
+            &::before{
+                content:"";
+                position: absolute;
+                left:-2px;
+                height:100%;
+                border-left:1px solid $bg-signup;
+            }
+            &::after{
+                --length:10px;
+                flex-shrink: 0;
+                content:"";
+                width:var(--length);
+                height:var(--length);
+                border-left:1px solid white;
+                border-top:1px solid white;
+                transform:rotate(-135deg);
+                transition:transform 500ms ease;
+            }
+        }
         .drop-down-menu{
             display: none;
             position: absolute;
             top:100%;
             left:0;
-            width:calc(100% + var(--padding-LR));
-            height:50vh;
-            background-color: grey;
+            width:100%;
+            height:max-content;
+            padding:0.3rem 0.6rem;
+            background-color: $background-button;
             z-index: 100;
-            a{
+            > *{
                 display:block;
-                text-decoration: none;
+                width:100%;
+                background-color: transparent;
+                padding:0.6rem 0.1rem;
+                margin:0.2rem 0;
                 color:white;
+                font-size: 1.05rem;
+                font-weight: 500;
+                text-align: left;
+                text-transform: capitalize;
+                text-decoration: none;
+                border:none;
+                border-radius:0.2rem;
+                &:hover{
+                    background-color: rgba(0, 0, 0, 0.1);
+                }
+                &:active{
+                    background-color: rgba(0, 0, 0, 0.2);
+                }
             }
         }
         &.active .drop-down-menu{

@@ -31,7 +31,9 @@ function App() {
                   <Route path="Friends" element={<Friends/>}/>
                 </Route>
                 <Route path="Chats" element={<ChatLayout/>}>
-                  <Route path=":chatID" element={<Chat/>} />
+                  <Route path=":chatID" element={<Chat/>} >
+                    <Route path="img/:imgID" element={<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"black"}}>img</div>} />
+                  </Route>
                 </Route>
             </Route>
             <Route path="*"element={<NotFound/>} />

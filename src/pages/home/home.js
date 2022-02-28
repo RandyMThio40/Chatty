@@ -79,6 +79,7 @@ export const Home = () => {
             return prev
         })
         tes();
+        console.log(new Date().toString());
     },[])
 
  

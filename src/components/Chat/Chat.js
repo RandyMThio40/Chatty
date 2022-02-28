@@ -65,6 +65,27 @@ const DisplayTitle = ({members_obj}) => {
 }
 
 
+const LinkChat = ({item, roomID}) => {
+    const [number_of_new_messages,set_number_of_new_messages] = useState(0);
+    const { currentUser , countNewMessages } = UseAuth();
+    const {chatID} = useParams();
+
+    useEffect(()=>{
+        countNewMessages(chatID,roomID,currentUser.uid,set_number_of_new_messages);
+    },[])
+
+    return(
+        <Link to={`${item.key}`}>
+            <div className={`link-chat ${(chatID === item.key) ? "active" : ""}`}>
+                <h4 className="link-chat-title">
+                    <DisplayTitle members_obj={item} />
+                </h4>
+                <p>new messages: {number_of_new_messages}</p>
+            </div>
+        </Link>
+    )
+}
+
 export const ChatLayout = () => {
     const {chatID} = useParams();
     const { currentUser, getConv , fetchUsersData,changeBG,currentChatBG,deleteChatData, getMedia } = UseAuth();
@@ -92,10 +113,10 @@ export const ChatLayout = () => {
             setLoadingConv(false);
             return;
         }
-        console.log(data.val);
+        // console.log(data.val);
         for(let uid in data.val.chat_info.members){
             const profile = await fetchUsersData(`${uid}/profile`);
-            console.log(`${uid} profile: `, profile.val());
+            // console.log(`${uid} profile: `, profile.val());
             obj[uid] = {
                 name:data.val.chat_info.members[uid]["nickname"] || data.val.chat_info.members[uid]["name"] || profile.val()["name"],
                 img_url:profile.val()?.img_url
@@ -133,12 +154,11 @@ export const ChatLayout = () => {
             setLoading(false);
             return;
         }
-        console.log(chats.val())
+        // console.log(chats.val())
         for(let chat_key in chats.val()){
             let chat_data = await getConv(`${chat_key}/chat_info`);
             if(chatID === chat_key) is_chat_id_real = true;
             chat_arr.push(chat_data.val);
-            console.log(chat_data)
             if(chat_data.val.type === "private"){
                 let members_obj_arr = []
                 for( let member_uid in chat_data.val.members){
@@ -183,14 +203,24 @@ export const ChatLayout = () => {
 
     const viewMedia = () =>{
         mediaCont.current.classList.add("active");
+        document.querySelector(".back-button").tabIndex = 0;
+        document.querySelector("#change-background-button").tabIndex = -1;
+        document.querySelector(".media-button").tabIndex = -1;
         !media.img_urls.length && loadMedia();
+    }
+
+    const closeMedia = (e) => {
+        e.target.tabIndex = -1;
+        document.querySelector("#change-background-button").tabIndex = 0;
+        document.querySelector(".media-button").tabIndex = 0;
+        mediaCont.current.classList.remove("active");
     }
 
     useEffect(()=>{
         getData();
         socket.current = io("https://chatty-deploy-heroku.herokuapp.com/");
         socket.current.on("is-connected",(res)=>{
-            console.log("ressss: ", socket.current.id);
+            // console.log("ressss: ", socket.current.id);
         })
         socket.current.on("delete-message",(res)=>{
             console.log(res);
@@ -208,12 +238,10 @@ export const ChatLayout = () => {
     useEffect(()=>{
         console.log("getting current convo: ");
         getCurrentConv();
+        return()=>{
+            setMedia({token:null,img_urls:[]});
+        }
     },[chatID])
-
-    useEffect(()=>{
-        console.log("m",media)
-    },[media])
-    
     
     if(loading  || loadingConv)return <>loading....</>
     if(!chatsList.length) return <>no conversations you are lonely</>
@@ -230,13 +258,7 @@ export const ChatLayout = () => {
                 </div>
                 {chatsList.length && chatsList.map((el,idx)=>{
                     return(
-                        <Link key={idx} to={`${el.key}`}>
-                            <div className={`link-chat ${(chatID === el.key) ? "active" : ""}`}>
-                                <h4 className="link-chat-title">
-                                    <DisplayTitle members_obj={el} />
-                                </h4>
-                            </div>
-                        </Link>
+                       <LinkChat key={idx} item={el} roomID={el.key}  />
                     )
                 })}
             </div>
@@ -257,20 +279,20 @@ export const ChatLayout = () => {
                            <DisplayTitle members_obj={chatsList.find(findChatObj)} />
                         </div>
                         <details className="customize-chat">
-                            <summary>Customize chat</summary>
+                            <summary tabIndex={-1}>Customize chat</summary>
                                 <div>
                                     <div>
                                         <input ref={change_bg} onChange={handleChangeBG} type="file" accept="image/*" hidden/>
-                                        <button onClick={clickChangeBG}>Change background img</button>
+                                        <button id="change-background-button" onClick={clickChangeBG}>Change background img</button>
                                     </div>
                                     { currentChatBG && <div><button onClick={()=>deleteChatData(chatID,currentChatBG,"background_img","img")}>delete img</button></div> } 
                                 </div>
                         </details>
-                        <button className="media-button" onClick={viewMedia}>media</button>
+                        <button className="media-button" tabIndex={-1} onClick={viewMedia}>media</button>
                     </div>
                     <div ref={mediaCont} className="media-container">
                         <div className="media-overhead">
-                        <button className="back-button" onClick={(e)=>{e.target.parentNode.parentNode.classList.remove("active")}}></button> 
+                            <button className="back-button" tabIndex={-1} onClick={closeMedia}></button> 
                             <h3>media</h3>
                         </div>
 
@@ -353,7 +375,6 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
 }
 
 export const Chat = () => {
-    const {sendMessage} = UseAuth();
     const [socket,currentRoom,conversation,setConversation,userData,currentChatMembers,prev_room,title] = useOutletContext();
     const [message,setMessage] = useState("");
     const enter_key_down = useRef(false);
@@ -361,7 +382,7 @@ export const Chat = () => {
     const hidden_butt = useRef();
     const editable_div = useRef();
     const [active,setActive] = useState(false);
-    const {currentUser,observeChatBG,currentChatBG,clearChatBG,uploadToStorage,deleteChatData} = UseAuth();
+    const {currentUser,observeChatBG,currentChatBG,clearChatBG,uploadToStorage,deleteChatData, setLastActive,sendMessage} = UseAuth();
     const [media,setMedia] = useState([]);
     const files_input = useRef();
     const MAX_FILES = 5;
@@ -369,8 +390,9 @@ export const Chat = () => {
     const manageUploadFiles = async() => { 
         setMedia([]);
         return await Promise.all(media.filter((item,idx)=>item.blob).map(async(src,idx)=>{
-            const url = await uploadToStorage(src.blob,`${currentRoom}/media/${new Date().getTime()}`)
-            return {text:null,img:url,timeStamp: new Date().toString(), sender: currentUser.uid,type:"media"}     
+            let date = new Date().getTime();
+            const url = await uploadToStorage(src.blob,`${currentRoom}/media/${date}`)
+            return {text:null,img:url,timeStamp: date, sender: currentUser.uid,type:"media"}     
         }));
     }
 
@@ -386,7 +408,7 @@ export const Chat = () => {
             let a = document.createElement("a");
             a.innerHTML = message;
             let polished_message = `${a.innerHTML.replace(/&nbsp;/g," ")}`.trim();
-            let message_obj = {text: polished_message, timeStamp: new Date().toString(), img:null, sender: currentUser.uid,type:'text'};
+            let message_obj = {text: polished_message, timeStamp: new Date().getTime(), img:null, sender: currentUser.uid,type:'text'};
             message_arr.push(message_obj);
         }
         if(media.length && !media.find((item)=>!item["blob"])){
@@ -474,7 +496,19 @@ export const Chat = () => {
     }
 
     const toggleSetting = () => {
-        document.querySelector(".chat-settings-container").classList.toggle("active");
+        const chat_settings_cont = document.querySelector(".chat-settings-container");
+        const change_bg_button = document.querySelector(".customize-chat summary");
+        const media_button = document.querySelector(".media-button");
+        chat_settings_cont?.classList.toggle("active");
+        console.log(chat_settings_cont.classList?.contains("active"))
+        if(!change_bg_button || !media_button) return;
+        if(chat_settings_cont.classList?.contains("active") ){
+            change_bg_button.tabIndex = 0;
+            media_button.tabIndex = 0;
+        } else {
+            change_bg_button.tabIndex = -1;
+            media_button.tabIndex = -1;
+        }
     }
 
     const removeMessage = (message) =>{
@@ -500,6 +534,10 @@ export const Chat = () => {
         })
     }
 
+    const setLastActiveField = () => {
+        setLastActive(currentRoom,currentUser.uid,new Date());
+    }
+
     useEffect(()=>{
         if(socket.current){
             socket.current.on("response",(res)=>{
@@ -513,10 +551,11 @@ export const Chat = () => {
                 setConversation(prev => prev.filter(message=>message.message_key !== res.message_id))
             })  
         }
+        
     },[])    
 
     useEffect(()=>{
-        console.log("useEffect at Chat component",currentRoom);
+        // console.log("useEffect at Chat component",currentRoom);
         if(socket.current){
             socket.current.emit("join-room",currentRoom);
         }
@@ -539,9 +578,14 @@ export const Chat = () => {
 
     useEffect(()=>{
         onValue(ref(database,`Users/${currentChatMembers.members[0].uid}/active`),(snapshot)=>{
-            console.log(snapshot.val(), currentChatMembers.members[0].uid);
+            // console.log(snapshot.val(), currentChatMembers.members[0].uid);
             setActive(snapshot.val());
         })
+        window.addEventListener("unload",setLastActiveField)
+        return ()=>{
+            window.removeEventListener('unload',setLastActiveField)
+            setLastActive(currentRoom,currentUser.uid,new Date());
+        }
     },[currentRoom])
 
     if(!currentRoom) return<></>
@@ -552,15 +596,15 @@ export const Chat = () => {
                 <div className="chat-overhead-prof">
                     <DisplayChatProfileImg members_obj={currentChatMembers} user_imgs={userData} overhead={true} />
                     <h1 className="chat-overhead-title">
-                    <DisplayTitle members_obj={currentChatMembers} />
+                        <DisplayTitle members_obj={currentChatMembers} />
                     </h1>
                     <div className={(active) ? "active" : "inactive"}></div>
                 </div>
-                <div className="dot-container" onClick={toggleSetting}>
+                <button className="dot-container" onClick={toggleSetting}>
                     <div className="dot"></div>
                     <div className="dot"></div>
                     <div className="dot"></div>
-                </div>
+                </button>
             </div>
             <div className="chat-bg" style={{display:"flex",flexDirection:"column",overflow:"hidden"}}>
                 <section className="conv-container">
@@ -635,7 +679,7 @@ const DisplayMessageContent = ({content}) => {
             else if(match_idx === 0){
                 let whitespace_idx = split_str.search(" ");
                 let url = (whitespace_idx !== -1) ? split_str.substring(0,whitespace_idx) : split_str.substring(0);
-                new_str.push(<a className="hyperlink" target="_blank" rel="noreferrer" href={url}>{`${url}`}</a>);                
+                new_str.push(<a className="hyperlink" tabIndex={-1} target="_blank" rel="noreferrer" href={url}>{`${url}`}</a>);                
                 split_str = (whitespace_idx === -1) ? "" : split_str.substring(whitespace_idx);
             }
             else{

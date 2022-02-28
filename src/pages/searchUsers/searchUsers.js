@@ -18,16 +18,13 @@ export const Users = () => {
     
     return(
         <section className="search-user-container">
-            <div>
-                <button onClick={()=>{navigate('../home',{replace:true})}}>back</button><br/>
-                <Link to={`../Users`}>Search Users</Link><br/>
-                <Link to="FriendRequests">FriendRequests</Link><br/>
+            <div className='links-container'>
+                <button onClick={()=>{navigate('../home',{replace:true})}}>back</button>
+                <Link to={`../Users`}>Search Users</Link>
+                <Link to="FriendRequests">FriendRequests</Link>
                 <Link to="Friends">Friends</Link>
-                <hr/>
             </div>
-            <div>
-                <Outlet/>
-            </div>
+            <Outlet/>
        </section>
     )
 }
@@ -56,7 +53,6 @@ export const Search = () => {
         } catch(err){
             console.log("handleFriends error: ", err);
         }
-
     }
 
     useEffect(()=>{
@@ -65,7 +61,8 @@ export const Search = () => {
     
     return(
         <section className="search-users-page">
-                <h3>Users</h3>
+            <h3>Users</h3>
+            <div className="wrapper">
                 {users?.map((el,idx)=>{
                     let className = "";
                     let disabled = false;
@@ -93,6 +90,8 @@ export const Search = () => {
                         </div>
                     )
                 })}
+                {!users?.length && <div>....reload</div>}
+            </div>
         </section>
     )
 }
@@ -134,24 +133,27 @@ export const FriendRequests = () => {
     if(loading) return <h1>Loading....</h1>
 
     return(
-        <div className="friend-request-page">
+        <section className="friend-request-page">
             <h3>Friend Requests</h3>
-            {friendReqs?.map((el,idx)=>{
-                return(
-                    <div className="select-user-option" key={idx}>
-                        {
-                            (el.pic)
-                            ? <img className="select-user-img" src={el.pic} alt={el.pic || el.name[0]} />
-                            : <p className="alt-user-img">{el.name[0]}</p>
-                        }
-                        <div>
-                            <p className="select-user-name">{el.name}</p>
-                            <button className="pending-request-butt" onClick={()=>acceptFriendReq(currentUser.uid,el.uid)}>accept</button><button onClick={()=>rejectFriendReq(currentUser.uid,el.uid)} className="pending-request-butt">reject</button>
+            <div className="wrapper">
+                {friendReqs?.map((el,idx)=>{
+                    return(
+                        <div className="select-user-option" key={idx}>
+                            {
+                                (el.pic)
+                                ? <img className="select-user-img" src={el.pic} alt={el.pic || el.name[0]} />
+                                : <p className="alt-user-img">{el.name[0]}</p>
+                            }
+                            <div>
+                                <p className="select-user-name">{el.name}</p>
+                                <button className="pending-request-butt" onClick={()=>acceptFriendReq(currentUser.uid,el.uid)}>accept</button><button onClick={()=>rejectFriendReq(currentUser.uid,el.uid)} className="pending-request-butt">reject</button>
+                            </div>
                         </div>
-                    </div>
-                )
-            })}
-        </div>
+                    )
+                })}
+                {!friendReqs?.length && <div>no friend requests</div>}
+            </div>
+        </section>
     )
 }
 
@@ -189,29 +191,32 @@ export const Friends = () => {
     return(
         <section className="friends-page">
             <h3>Friends</h3>
-            {friends && friendList?.map((el,idx)=>{
-                return(
-                    <div key={idx} className="select-user-option" >
-                        {
-                            (el.pic)
-                                ? <img onLoad={isComplete} className="select-user-img incomplete" src={el.pic} alt={el.pic || el.name[0]} />
-                                : <p className="alt-user-img">{el.name[0]}</p>
-                        }
-                        <div>
-                            <p className="select-user-name">{el.name}</p>
+            <div className="wrapper">
+                {friends && friendList?.map((el,idx)=>{
+                    return(
+                        <div key={idx} className="select-user-option" >
                             {
-                                (friends[el.uid])
-                                ? <>
-                                    <button onClick={()=>sendMessage(el.chat_id)}>send message</button> 
-                                    <button onClick={()=>removeFriend(currentUser.uid,el.uid)} >remove</button>
-                                  </>
-                                : <><span>pending</span><button onClick={()=>removePending(currentUser.uid,el.uid)} >remove</button></>
-
+                                (el.pic)
+                                    ? <img onLoad={isComplete} className="select-user-img incomplete" src={el.pic} alt={el.pic || el.name[0]} />
+                                    : <p className="alt-user-img">{el.name[0]}</p>
                             }
+                            <div>
+                                <p className="select-user-name">{el.name}</p>
+                                {
+                                    (friends[el.uid])
+                                    ? <>
+                                        <button onClick={()=>sendMessage(el.chat_id)}>send message</button> 
+                                        <button onClick={()=>removeFriend(currentUser.uid,el.uid)} >remove</button>
+                                    </>
+                                    : <><span>pending</span><button onClick={()=>removePending(currentUser.uid,el.uid)} >remove</button></>
+
+                                }
+                            </div>
                         </div>
-                    </div>
-                )
-            })}
+                    )
+                })}
+                {!friends && <div>no Friends</div>}
+            </div>
         </section>
     )
 }

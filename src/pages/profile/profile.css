@@ -8,10 +8,12 @@
           flex-direction: column;
   min-height: 500px;
   height: 100%;
+  color: white;
 }
 
 .profile-container > h1 {
-  padding: 10px;
+  font-size: 2rem;
+  padding: 16px;
 }
 
 .profile-container .modal {
@@ -143,34 +145,41 @@
           flex-direction: column;
 }
 
-.profile-wrapper .profile-form > * {
-  width: 100%;
-  text-align: left;
-}
-
 .profile-wrapper .profile-form button,
 .profile-wrapper .profile-form input {
-  background-color: #ffffff43;
+  width: 100%;
+  background-color: #747782;
   border: none;
   color: white;
   padding: 10px;
   font-size: 1rem;
   font-weight: bold;
+  text-align: left;
   border-radius: 0.2rem;
-  margin: 2px 0;
+  margin: 5px 0;
   cursor: pointer;
 }
 
 .profile-wrapper .profile-form button:hover,
 .profile-wrapper .profile-form input:hover {
   color: black;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #747782;
 }
 
 .profile-wrapper .profile-form button:active,
 .profile-wrapper .profile-form input:active {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #747782;
   opacity: 0.5;
+}
+
+.profile-wrapper .profile-form .select-files-container {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 0.2rem 0.2rem  0.5rem 0.5rem;
+}
+
+.profile-wrapper .profile-form .select-files-container button,
+.profile-wrapper .profile-form .select-files-container input {
+  margin: unset;
 }
 
 .profile-wrapper .profile-form .button-container {
@@ -185,7 +194,10 @@
 .profile-wrapper .profile-form .button-container button,
 .profile-wrapper .profile-form .button-container input {
   background-color: #487BE9;
-  margin: 10px 10px 10px 20px;
+  margin: 8px 10px 8px 10px;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
 }
 
 .profile-wrapper .profile-form .button-container button:hover,
@@ -206,25 +218,33 @@
   text-align: left;
 }
 
+.profile-wrapper .profile-input-container h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  text-shadow: 1px 1px 1px black;
+}
+
 .profile-wrapper .profile-input-container .change-name-button {
-  background-color: #ffffff43;
+  width: 100%;
+  background-color: #747782;
   border: none;
   color: white;
   padding: 10px;
   font-size: 1rem;
   font-weight: bold;
+  text-align: left;
   border-radius: 0.2rem;
-  margin: 2px 0;
+  margin: 5px 0;
   cursor: pointer;
 }
 
 .profile-wrapper .profile-input-container .change-name-button:hover {
   color: black;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #747782;
 }
 
 .profile-wrapper .profile-input-container .change-name-button:active {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #747782;
   opacity: 0.5;
 }
 
@@ -233,24 +253,26 @@
 }
 
 .profile-wrapper .signout {
-  background-color: #ffffff43;
+  width: 100%;
+  background-color: #747782;
   border: none;
   color: white;
   padding: 10px;
   font-size: 1rem;
   font-weight: bold;
+  text-align: left;
   border-radius: 0.2rem;
-  margin: 2px 0;
+  margin: 5px 0;
   cursor: pointer;
 }
 
 .profile-wrapper .signout:hover {
   color: black;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #747782;
 }
 
 .profile-wrapper .signout:active {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: #747782;
   opacity: 0.5;
 }
 

@@ -11,17 +11,24 @@
           justify-content: space-between;
   width: 100vw;
   height: 60px;
+  color: white;
   font-size: 1.1rem;
-  background-color: #A8AABC;
+  background-color: #444655;
   padding: 0 var(--padding-LR);
+  border-bottom: 1px solid #A8AABC;
 }
 
 .Nav-bar a {
   text-decoration: none;
-  color: initial;
+  color: white;
 }
 
-.Nav-bar .user-setting {
+.Nav-bar .user-setting-container.active .user-setting-wrapper::after {
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+
+.Nav-bar .user-setting-container .user-setting-wrapper {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -33,15 +40,30 @@
   padding: 0.2rem 0.6rem;
   -ms-flex-negative: 0;
       flex-shrink: 0;
+  cursor: pointer;
 }
 
-.Nav-bar .user-setting .profile-image-container {
-  pointer-events: none;
+.Nav-bar .user-setting-container .user-setting-wrapper:focus-within {
+  outline: 2px solid #288cf7;
 }
 
-.Nav-bar .user-setting .profile-image-container .default-image,
-.Nav-bar .user-setting .profile-image-container .profile-image {
-  --length:3rem;
+.Nav-bar .user-setting-container .user-setting-wrapper .hidden-butt {
+  position: absolute;
+  opacity: 0;
+}
+
+.Nav-bar .user-setting-container .user-setting-wrapper .profile-image-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.Nav-bar .user-setting-container .user-setting-wrapper .profile-image-container .default-image,
+.Nav-bar .user-setting-container .user-setting-wrapper .profile-image-container .profile-image {
+  --length:3.2rem;
   width: var(--length);
   height: var(--length);
   border-radius: 50%;
@@ -49,38 +71,42 @@
      object-fit: cover;
 }
 
-.Nav-bar .user-setting .profile-image-container .default-image.incomplete,
-.Nav-bar .user-setting .profile-image-container .profile-image.incomplete {
+.Nav-bar .user-setting-container .user-setting-wrapper .profile-image-container .default-image.incomplete,
+.Nav-bar .user-setting-container .user-setting-wrapper .profile-image-container .profile-image.incomplete {
   opacity: 0;
 }
 
-.Nav-bar .user-setting .username-container {
-  margin: 0 0.4rem;
-  pointer-events: none;
-}
-
-.Nav-bar .user-setting .username-container .username {
-  white-space: nowrap;
-  max-width: 150px;
+.Nav-bar .user-setting-container .user-setting-wrapper .username {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  margin: 0 0.6rem;
+  width: 100%;
+  font-size: 1.5rem;
+  text-align: center;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
   overflow: hidden;
 }
 
-.Nav-bar .user-setting::before {
+.Nav-bar .user-setting-container .user-setting-wrapper::before {
   content: "";
   position: absolute;
-  left: 0;
-  height: 80%;
-  border-left: 1px solid #131313;
+  left: -2px;
+  height: 100%;
+  border-left: 1px solid #A8AABC;
 }
 
-.Nav-bar .user-setting::after {
+.Nav-bar .user-setting-container .user-setting-wrapper::after {
   --length:10px;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
   content: "";
   width: var(--length);
   height: var(--length);
-  border-left: 1px solid black;
-  border-top: 1px solid black;
+  border-left: 1px solid white;
+  border-top: 1px solid white;
   -webkit-transform: rotate(-135deg);
           transform: rotate(-135deg);
   -webkit-transition: -webkit-transform 500ms ease;
@@ -89,29 +115,45 @@
   transition: transform 500ms ease, -webkit-transform 500ms ease;
 }
 
-.Nav-bar .user-setting.active::after {
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
-}
-
-.Nav-bar .user-setting .drop-down-menu {
+.Nav-bar .user-setting-container .drop-down-menu {
   display: none;
   position: absolute;
   top: 100%;
   left: 0;
-  width: calc(100% + var(--padding-LR));
-  height: 50vh;
-  background-color: grey;
+  width: 100%;
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  padding: 0.3rem 0.6rem;
+  background-color: #747782;
   z-index: 100;
 }
 
-.Nav-bar .user-setting .drop-down-menu a {
+.Nav-bar .user-setting-container .drop-down-menu > * {
   display: block;
-  text-decoration: none;
+  width: 100%;
+  background-color: transparent;
+  padding: 0.6rem 0.1rem;
+  margin: 0.2rem 0;
   color: white;
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-align: left;
+  text-transform: capitalize;
+  text-decoration: none;
+  border: none;
+  border-radius: 0.2rem;
 }
 
-.Nav-bar .user-setting.active .drop-down-menu {
+.Nav-bar .user-setting-container .drop-down-menu > *:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.Nav-bar .user-setting-container .drop-down-menu > *:active {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.Nav-bar .user-setting-container.active .drop-down-menu {
   display: block;
 }
 /*# sourceMappingURL=nav.css.map */

@@ -1,11 +1,12 @@
 import React,{useContext, useState, useEffect} from 'react';
 import {auth,createUser,signOutUser, signInUser, database} from '../firebase.js';
-import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild, orderByKey, onChildChanged, limitToLast, endBefore, limitToFirst, startAt } from "firebase/database";
+import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild, orderByKey, onChildChanged, limitToLast, endBefore, limitToFirst, startAt, orderByValue, startAfter } from "firebase/database";
 import { updateProfile } from 'firebase/auth';
 import { uploadBytes,ref as storageRef, getDownloadURL, deleteObject, list } from 'firebase/storage';
 import { storage } from '../firebase.js';
 import { v4 as uuidv4 } from 'uuid';
 import { async } from '@firebase/util';
+import { useParams } from 'react-router-dom';
 
 const AuthContext = React.createContext();
 
@@ -18,7 +19,6 @@ export function AuthProvider({children}){
     const [loading,setLoading] = useState(true);
     const [friends,setFriends] = useState();
     const [friendRequests,setFriendRequests] = useState();
- 
 
     const signup = (email, password) => {
         return createUser(email,password);
@@ -293,6 +293,36 @@ export function AuthProvider({children}){
         })
     }
 
+    const setLastActive = (chatID,userID) => {
+        const updates ={};
+        let date = new Date();
+        updates[`ChatRooms/${chatID}/chat_info/members/${userID}/last_active`] = date.getTime();
+        updates[`ChatRooms/${chatID}/chat_info/members/${userID}/last_active_date`] = date.toString();
+        console.log(date)
+        update(ref(database,'/'),updates);
+    }
+
+    const countNewMessages = ( currentChatID ,chatID, userID, setState) => {
+        onValue(ref(database,`/ChatRooms/${chatID}/messages`), async()=>{
+            console.log(currentChatID,chatID,currentChatID === chatID)
+            if(currentChatID === chatID) {
+                setState(prev => {
+                    if(prev) return 0;
+                    return prev;
+                });
+                return;
+            }
+            try{
+                let last_active = await get(ref(database,`ChatRooms/${chatID}/chat_info/members/${userID}/last_active`))
+                let que = query(ref(database,`ChatRooms/${chatID}/messages`),orderByChild("timeStamp"), startAfter(last_active.val()));
+                let data = await get(que);
+                data.val() && setState(prev => Object.keys(data.val()).length)
+            } catch( error ) {
+                console.log(error);
+            }
+        })
+    }
+
     const value = {
         currentUser,
         friends,
@@ -324,7 +354,9 @@ export function AuthProvider({children}){
         deleteImg,
         deleteChatData,
         getMedia,
-        observeValue
+        observeValue,
+        setLastActive,
+        countNewMessages
     } 
     
     useEffect(()=>{
@@ -337,7 +369,6 @@ export function AuthProvider({children}){
         return unsubscribe;
     },[])
 
-
     useEffect(()=>{
         if(currentUser){
             setActiveUser(currentUser.uid);
@@ -348,6 +379,17 @@ export function AuthProvider({children}){
                 setFriendRequests(snapshot.val());
             })
             window.addEventListener("unload",setInactiveUser);
+            onValue(ref(database,`/ChatRooms/-MwRqTvHC6xWpK8eHY9m/chat_info/members/bkmzvMk8kmaHtq8Gm40Dy47Bpak2/last_active`),(snapshot)=>{
+                get(ref(database,`/ChatRooms/-MwRqTvHC6xWpK8eHY9m/chat_info/members/bkmzvMk8kmaHtq8Gm40Dy47Bpak2/last_active`)).then((res)=>{
+
+                })
+                let que = query(ref(database,`ChatRooms/-MwRqTvHC6xWpK8eHY9m/messages`),orderByChild("timeStamp"), startAfter(snapshot.val()));
+                get(que).then((res)=>{
+                    console.log(snapshot.val());
+                    res?.val() && console.log(res.val(),Object?.keys(res?.val())?.length)
+
+                })
+            })
             return ()=>{
                 window.removeEventListener("unload",setInactiveUser);
                 setFriendRequests();
