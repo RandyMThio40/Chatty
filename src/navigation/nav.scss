@@ -17,6 +17,8 @@
         color:white;
     }
     .user-setting-container{
+        border-left:1px solid $bg-signup;
+
         &.active  .user-setting-wrapper::after{
             transform: rotate(45deg);
         }
@@ -65,13 +67,13 @@
                 overflow: hidden;
             }
             
-            &::before{
-                content:"";
-                position: absolute;
-                left:-2px;
-                height:100%;
-                border-left:1px solid $bg-signup;
-            }
+            // &::before{
+            //     content:"";
+            //     position: absolute;
+            //     left:-2px;
+            //     height:100%;
+            //     border-left:1px solid $bg-signup;
+            // }
             &::after{
                 --length:10px;
                 flex-shrink: 0;

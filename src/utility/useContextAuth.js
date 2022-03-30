@@ -274,7 +274,8 @@ export function AuthProvider({children}){
         try{
             const media_ref = await list(storageRef(storage,`${chat_id}/media`),{maxResults:max,pageToken:token});
             let urls = [];
-            if(!media_ref.items.length === trailing_number) return -1;
+            console.log(!media_ref.items.length === trailing_number);
+            if( (!media_ref.items.length === trailing_number)  ) return -1;
             for(let idx in media_ref.items){
                 if(idx < trailing_number) continue;
                 let url = await getDownloadURL(media_ref.items[idx]);
@@ -300,27 +301,6 @@ export function AuthProvider({children}){
         updates[`ChatRooms/${chatID}/chat_info/members/${userID}/last_active_date`] = date.toString();
         console.log(date)
         update(ref(database,'/'),updates);
-    }
-
-    const countNewMessages = ( currentChatID ,chatID, userID, setState) => {
-        onValue(ref(database,`/ChatRooms/${chatID}/messages`), async()=>{
-            console.log(currentChatID,chatID,currentChatID === chatID)
-            if(currentChatID === chatID) {
-                setState(prev => {
-                    if(prev) return 0;
-                    return prev;
-                });
-                return;
-            }
-            try{
-                let last_active = await get(ref(database,`ChatRooms/${chatID}/chat_info/members/${userID}/last_active`))
-                let que = query(ref(database,`ChatRooms/${chatID}/messages`),orderByChild("timeStamp"), startAfter(last_active.val()));
-                let data = await get(que);
-                data.val() && setState(prev => Object.keys(data.val()).length)
-            } catch( error ) {
-                console.log(error);
-            }
-        })
     }
 
     const value = {
@@ -356,7 +336,6 @@ export function AuthProvider({children}){
         getMedia,
         observeValue,
         setLastActive,
-        countNewMessages
     } 
     
     useEffect(()=>{
@@ -365,7 +344,6 @@ export function AuthProvider({children}){
             setCurrentUser(user)
             setLoading(false);
         });
-
         return unsubscribe;
     },[])
 
@@ -379,17 +357,6 @@ export function AuthProvider({children}){
                 setFriendRequests(snapshot.val());
             })
             window.addEventListener("unload",setInactiveUser);
-            onValue(ref(database,`/ChatRooms/-MwRqTvHC6xWpK8eHY9m/chat_info/members/bkmzvMk8kmaHtq8Gm40Dy47Bpak2/last_active`),(snapshot)=>{
-                get(ref(database,`/ChatRooms/-MwRqTvHC6xWpK8eHY9m/chat_info/members/bkmzvMk8kmaHtq8Gm40Dy47Bpak2/last_active`)).then((res)=>{
-
-                })
-                let que = query(ref(database,`ChatRooms/-MwRqTvHC6xWpK8eHY9m/messages`),orderByChild("timeStamp"), startAfter(snapshot.val()));
-                get(que).then((res)=>{
-                    console.log(snapshot.val());
-                    res?.val() && console.log(res.val(),Object?.keys(res?.val())?.length)
-
-                })
-            })
             return ()=>{
                 window.removeEventListener("unload",setInactiveUser);
                 setFriendRequests();

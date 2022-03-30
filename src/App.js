@@ -10,6 +10,7 @@ import { Nav } from './navigation/nav';
 import { Profile } from './pages/profile/profile';
 import { Users, Search, FriendRequests, Friends } from './pages/searchUsers/searchUsers';
 import {ChatLayout,Chat} from './components/Chat/Chat';
+import {MediaView} from './components/MediaView/MediaView';
 
 function App() {
 
@@ -32,7 +33,7 @@ function App() {
                 </Route>
                 <Route path="Chats" element={<ChatLayout/>}>
                   <Route path=":chatID" element={<Chat/>} >
-                    <Route path="img/:imgID" element={<div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"black"}}>img</div>} />
+                    <Route path="img/:imgID" element={<MediaView/>} />
                   </Route>
                 </Route>
             </Route>

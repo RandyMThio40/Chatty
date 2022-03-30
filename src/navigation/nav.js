@@ -13,7 +13,6 @@ export const Nav = () => {
 
     const toggleActive = (e) => {
         e.stopPropagation();
-        console.log("clo")
         settingRef.current.classList.toggle("active");
     }
     

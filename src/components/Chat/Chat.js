@@ -2,11 +2,12 @@ import React,{useState,useEffect,useRef} from'react';
 import { Link, Outlet,useNavigate,useOutletContext, useParams} from 'react-router-dom';
 import { UseAuth } from '../../utility/useContextAuth';
 import { database } from '../../firebase';
-import { onValue, ref } from 'firebase/database';
+import { get, onValue, ref } from 'firebase/database';
 import { io } from 'socket.io-client';
 import axios from "axios";
 import './Chat.css';
 import { v4 } from 'uuid';
+import jump_down_icon from '../../imgs/down_arrow_icon.svg';
 
 const displayTime = (date_obj) => {
     let D = new Date(date_obj);
@@ -65,13 +66,65 @@ const DisplayTitle = ({members_obj}) => {
 }
 
 
-const LinkChat = ({item, roomID}) => {
+const LinkChat = ({item, roomID, setState}) => {
     const [number_of_new_messages,set_number_of_new_messages] = useState(0);
-    const { currentUser , countNewMessages } = UseAuth();
+    const { currentUser } = UseAuth();
     const {chatID} = useParams();
+    const currentRoom = useRef(chatID);
+    const last_active = useRef();
 
     useEffect(()=>{
-        countNewMessages(chatID,roomID,currentUser.uid,set_number_of_new_messages);
+        if(last_active.current && currentRoom.current === roomID && currentRoom.current !== chatID){
+            last_active.current = new Date().getTime();
+            set_number_of_new_messages(0);
+            setState(prev => {
+                let obj = {};
+                obj[roomID] = {
+                    new_messages_count:0,
+                }
+                return {
+                    ...prev,
+                    ...obj,
+                }
+            });
+        }
+        currentRoom.current = chatID;
+        if(chatID === roomID){
+
+        }
+    },[chatID])
+
+    useEffect(()=>{
+        onValue(ref(database,`/ChatRooms/${roomID}/messages`), async(snapshot)=>{
+            try{
+                if(currentRoom.current === roomID && last_active.current){
+                    set_number_of_new_messages(0);
+                    return;
+                }
+                last_active.current = last_active.current || await get(ref(database,`ChatRooms/${roomID}/chat_info/members/${currentUser.uid}/last_active`)).then(res=>res.val())
+                let new_messages_count = Array.from(Object.entries(snapshot.val())).filter((duple)=> duple[1]["timeStamp"] > last_active.current).length;
+                new_messages_count && set_number_of_new_messages(prev => new_messages_count);
+                new_messages_count && setState(prev => {
+                    let obj = {};
+                    obj[roomID] = {
+                        new_messages_count:new_messages_count,
+                    }
+                    return {
+                        ...prev,
+                        ...obj,
+                    }
+                });
+            }catch(err){
+                set_number_of_new_messages(prev=>{
+                    if(prev) return prev;
+                    return 0;
+                });
+                console.log(err);
+            }
+        })
+        return()=>{
+            set_number_of_new_messages();
+        }
     },[])
 
     return(
@@ -84,6 +137,24 @@ const LinkChat = ({item, roomID}) => {
             </div>
         </Link>
     )
+}
+
+const toggleSetting = () => {
+    const chat_settings_cont = document.querySelector(".chat-settings-container");
+    const change_bg_button = document.querySelector(".customize-chat summary");
+    const media_button = document.querySelector(".media-button");
+    const close_button = document.querySelector(".chat-settings-container .close");
+    chat_settings_cont?.classList.toggle("active");
+    if(!change_bg_button || !media_button || !close_button) return;
+    if(chat_settings_cont.classList?.contains("active") ){
+        change_bg_button.tabIndex = 0;
+        media_button.tabIndex = 0;
+        close_button.tabIndex = 0;
+    } else {
+        change_bg_button.tabIndex = -1;
+        media_button.tabIndex = -1;
+        close_button.tabIndex = -1;
+    }
 }
 
 export const ChatLayout = () => {
@@ -100,6 +171,7 @@ export const ChatLayout = () => {
     const prev_room = useRef(chatID);
     const [media,setMedia] = useState({token:null,img_urls:[]});
     const mediaCont = useRef();
+    const [MCount,setMCount] = useState({});
 
     const findChatObj = (element) =>{
         return element.key === chatID;
@@ -185,7 +257,9 @@ export const ChatLayout = () => {
         let trailing_number = (media.img_urls.length % 10)
         let MAX_RESULTS =  10;
         let data = await getMedia(chatID,media.token,MAX_RESULTS, trailing_number);
+        console.log(data,media)
         if(data === -1) return;
+        if(media.img_urls[media.img_urls.length-1] && (media.img_urls[media.img_urls.length-1] === data.img_urls[data.img_urls.length-1])) return;
         setMedia(pre =>{return{token:data.token || pre.token,img_urls:[...pre.img_urls,...data.img_urls]}});
     }
 
@@ -206,13 +280,15 @@ export const ChatLayout = () => {
         document.querySelector(".back-button").tabIndex = 0;
         document.querySelector("#change-background-button").tabIndex = -1;
         document.querySelector(".media-button").tabIndex = -1;
-        !media.img_urls.length && loadMedia();
+        document.querySelector(".chat-settings-container .close").tabIndex = -1;
+        loadMedia();
     }
-
+    
     const closeMedia = (e) => {
         e.target.tabIndex = -1;
         document.querySelector("#change-background-button").tabIndex = 0;
         document.querySelector(".media-button").tabIndex = 0;
+        document.querySelector(".chat-settings-container .close").tabIndex = 0;
         mediaCont.current.classList.remove("active");
     }
 
@@ -242,6 +318,10 @@ export const ChatLayout = () => {
             setMedia({token:null,img_urls:[]});
         }
     },[chatID])
+
+    useEffect(()=>{
+        console.log("MCounting: ", MCount)
+    },[MCount])
     
     if(loading  || loadingConv)return <>loading....</>
     if(!chatsList.length) return <>no conversations you are lonely</>
@@ -258,22 +338,22 @@ export const ChatLayout = () => {
                 </div>
                 {chatsList.length && chatsList.map((el,idx)=>{
                     return(
-                       <LinkChat key={idx} item={el} roomID={el.key}  />
+                       <LinkChat key={idx} item={el} roomID={el.key} setState={setMCount}  />
                     )
                 })}
             </div>
             <div className="chat-main-content">
             {
                 (chatsList.find(findChatObj))
-                ? <Outlet context={[socket,chatID,conversation,setConversation,userData,chatsList.find(findChatObj),prev_room]} />
+                ? <Outlet context={[socket,chatID,conversation,setConversation,userData,chatsList.find(findChatObj),prev_room,MCount]} />
                 : <div style={{width:"100%"}}>Chat does not exist</div>
             }
             </div>
             {
                 (chatsList.find(findChatObj))
                 ? <div className="chat-settings-container">
-                    
                     <div className="chat-settings-wrapper">
+                        <button className='close' onClick={toggleSetting} tabIndex={-1}></button>
                         <DisplayChatProfileImg members_obj={chatsList.find(findChatObj)} user_imgs={userData}/>
                         <div className="chat-name">
                            <DisplayTitle members_obj={chatsList.find(findChatObj)} />
@@ -285,7 +365,7 @@ export const ChatLayout = () => {
                                         <input ref={change_bg} onChange={handleChangeBG} type="file" accept="image/*" hidden/>
                                         <button id="change-background-button" onClick={clickChangeBG}>Change background img</button>
                                     </div>
-                                    { currentChatBG && <div><button onClick={()=>deleteChatData(chatID,currentChatBG,"background_img","img")}>delete img</button></div> } 
+                                    { currentChatBG && <div><button onClick={()=>deleteChatData(chatID,currentChatBG,"background_img","img")}>remove img</button></div> } 
                                 </div>
                         </details>
                         <button className="media-button" tabIndex={-1} onClick={viewMedia}>media</button>
@@ -375,7 +455,7 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
 }
 
 export const Chat = () => {
-    const [socket,currentRoom,conversation,setConversation,userData,currentChatMembers,prev_room,title] = useOutletContext();
+    const [socket,currentRoom,conversation,setConversation,userData,currentChatMembers,prev_room,MCount] = useOutletContext();
     const [message,setMessage] = useState("");
     const enter_key_down = useRef(false);
     const shift_key_down = useRef(false);
@@ -495,22 +575,6 @@ export const Chat = () => {
         })
     }
 
-    const toggleSetting = () => {
-        const chat_settings_cont = document.querySelector(".chat-settings-container");
-        const change_bg_button = document.querySelector(".customize-chat summary");
-        const media_button = document.querySelector(".media-button");
-        chat_settings_cont?.classList.toggle("active");
-        console.log(chat_settings_cont.classList?.contains("active"))
-        if(!change_bg_button || !media_button) return;
-        if(chat_settings_cont.classList?.contains("active") ){
-            change_bg_button.tabIndex = 0;
-            media_button.tabIndex = 0;
-        } else {
-            change_bg_button.tabIndex = -1;
-            media_button.tabIndex = -1;
-        }
-    }
-
     const removeMessage = (message) =>{
         let type = message.text ? "text" : "img"
         switch(type){
@@ -539,13 +603,28 @@ export const Chat = () => {
     }
 
     useEffect(()=>{
+        
         if(socket.current){
             socket.current.on("response",(res)=>{
                 console.log("chat: ",res);
             })
             socket.current.on("receive-message",(res)=>{
+                const chat_el = document.querySelector(".chat-wrapper");
+                let at_bottom = false;
                 console.log("recieved-message event: ",res);
-                setConversation(prev => [...prev,...res])
+                console.log(chat_el?.scrollTop , (chat_el?.scrollHeight - Math.ceil(chat_el?.getBoundingClientRect().height))-100)
+                if(chat_el?.scrollTop >= (chat_el?.scrollHeight - Math.ceil(chat_el?.getBoundingClientRect().height)) - 100){
+                    console.log("is scroll at bottom",);
+                    at_bottom = true;
+                }
+                setConversation(prev => [...prev,...res]);
+                if(at_bottom){
+                    setTimeout(()=>{
+                        console.log("down")
+                        chat_el.scrollTop = chat_el.scrollHeight;
+                    })
+                    at_bottom = false;
+                }
             })
             socket.current.on("delete-message",(res)=>{;
                 setConversation(prev => prev.filter(message=>message.message_key !== res.message_id))
@@ -585,6 +664,7 @@ export const Chat = () => {
         return ()=>{
             window.removeEventListener('unload',setLastActiveField)
             setLastActive(currentRoom,currentUser.uid,new Date());
+            setActive();
         }
     },[currentRoom])
 
@@ -610,7 +690,7 @@ export const Chat = () => {
                 <section className="conv-container">
                     { 
                         (conversation.length) 
-                        ? <Conversation chatID={currentRoom} uid={currentUser.uid} conversation={conversation} userData={userData} deleteFunc={removeMessage} /> 
+                        ? <Conversation chatID={currentRoom} uid={currentUser.uid} conversation={conversation} userData={userData} deleteFunc={removeMessage} MCount={MCount}/> 
                         : <></>
                     }
                 </section>
@@ -669,7 +749,6 @@ const DisplayMessageContent = ({content}) => {
         let a = document.createElement("a");
         a.innerHTML = split_str;
         if(a.innerHTML.match(/&nbsp;/)) split_str = `${a.innerHTML.replace(/&nbsp;/g," ")}`;
-    
         do{
             let match_idx = split_str.search(/https:\/\//);
             if(match_idx > 0){
@@ -688,7 +767,6 @@ const DisplayMessageContent = ({content}) => {
                 split_str = "";
             }
         } while(split_str.length)
-    
         return new_str.map((el,idx)=>{
             return (
                 <React.Fragment key={idx}>
@@ -709,8 +787,18 @@ const DisplayMessageContent = ({content}) => {
     if(content.img) return(
         <div className="message-wrapper img">
             <div className="message-img-wrapper loading">
-                <img onLoad={isComplete} className="message-img" src={content.img} alt={content.img} />
+                <img onLoad={isComplete} onClick={(e)=>{e.target.parentNode.parentNode.classList.add("active")}} className="message-img" src={content.img} alt={content.img} />
                 <span className="message-time"><span className="time-value">{displayTime(content.timeStamp)}</span></span>
+            </div>
+            <div className="img-modal">
+                <div className="img-modal-background" onClick={(e)=>{e.target.parentNode.parentNode.classList.remove("active")}}></div>
+                <div className="img-modal-wrapper">
+                    <img src={content.img} alt={content.img}/>
+                    <a href={content.img} target="_blank">
+                        open original
+                    </a>
+                </div>
+                <div className="img-modal-close" onClick={(e)=>{e.target.parentNode.parentNode.classList.remove("active")}}></div>
             </div>
         </div>
     )
@@ -718,7 +806,7 @@ const DisplayMessageContent = ({content}) => {
 
 
 
-const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc}) =>{
+const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,MCount}) =>{
     const prev_date = useRef({
         day:null,
         month:null,
@@ -805,7 +893,9 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc})
     return(
             <div className="chat-wrapper">
                 <div id="jump-down-button-container">    
-                    <div className="jump-down-button" onClick={handleJump}/>
+                    <div className="jump-down-button" onClick={handleJump}>
+                        <img src={jump_down_icon} alt="jumpdownicon.svg"/>
+                    </div>
                 </div>
                 {conversation?.map((item,idx)=>{
                     let date = new Date(item.timeStamp);
@@ -815,6 +905,7 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc})
                     let D = date.getDate();
                     let display_time = false;
                     let display_name = false;
+                    let display_new_notification = false;
                     if( !idx || date.getFullYear() !== prev_date.current["year"] || date.getMonth() !== prev_date.current["month"] || date.getDate() !== prev_date.current["day"] ){
                         prev_date.current["year"] = Y;
                         prev_date.current["month"] = M; 
@@ -827,13 +918,24 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc})
                         display_name = true
                     } 
                     prev_display_name.current = item.sender;
+                    // console.log("bitch: " ,MCount);
+                    if(MCount?.[`${chatID}`]?.new_messages_count && ((conversation.length-1) - (MCount[`${chatID}`].new_messages_count-1)) === idx){
+                        display_new_notification = true;
+                        console.log("buttss: ",((conversation.length-1) - (MCount[`${chatID}`].new_messages_count-1)), idx)
+                    }
                     
                     return(
                         <React.Fragment key={idx}>
                             {
                                 (display_time)
-                                ? <div className="display-date" style={{textAlign:"center"}} >{today || `${weekday[date.getDay()]}, ${month[M]} ${D}, ${Y}`}</div>
+                                ? <div className="display-date" >{today || `${weekday[date.getDay()]}, ${month[M]} ${D}, ${Y}`}</div>
                                 : <></>
+                            }
+                            {
+                                (display_new_notification)
+                                ? <div  className="display-new-notification">New message(s)</div>
+                                : <></>
+
                             }
                             <React.Fragment>
                             <div  className={`message-container  ${ item.sender === uid ? `user` : `` }`}>

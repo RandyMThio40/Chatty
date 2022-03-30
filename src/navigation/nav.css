@@ -23,6 +23,10 @@
   color: white;
 }
 
+.Nav-bar .user-setting-container {
+  border-left: 1px solid #A8AABC;
+}
+
 .Nav-bar .user-setting-container.active .user-setting-wrapper::after {
   -webkit-transform: rotate(45deg);
           transform: rotate(45deg);
@@ -88,14 +92,6 @@
   white-space: nowrap;
   pointer-events: none;
   overflow: hidden;
-}
-
-.Nav-bar .user-setting-container .user-setting-wrapper::before {
-  content: "";
-  position: absolute;
-  left: -2px;
-  height: 100%;
-  border-left: 1px solid #A8AABC;
 }
 
 .Nav-bar .user-setting-container .user-setting-wrapper::after {
