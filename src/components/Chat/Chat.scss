@@ -247,10 +247,10 @@
                 right:20px;
                 padding:20px;
                 border-radius:50%;
-                background-color: rgba(255, 255, 255, 0.5);
+                background-color: rgba(255, 255, 255, 0.15);
                 cursor: pointer;
                 &:hover{
-                    background-color: rgba(255, 255, 255, 0.3);
+                    background-color: rgba(255, 255, 255, 0.19);
                 }
                 &::after,
                 &::before{
@@ -258,7 +258,7 @@
                     position:absolute;
                     top:50%;
                     left:50%;
-                    width:65%;
+                    width:55%;
                     height:1px;
                     background-color: white;
                     transform:translate(-50%,-50%) rotate(45deg);
@@ -651,6 +651,67 @@
         text-transform: capitalize;
     }
 
+    .change-users-nickname-container{
+        --padding:10px;
+        width:100%;
+        font-size:1rem;
+        
+        &.active{
+            .change-users-nickname-button{
+                visibility: hidden;
+                z-index: 0;
+            }
+            form{
+                visibility: initial;
+            }
+        }
+        .change-users-nickname-button{
+            position:absolute;
+            top:0;
+            left:0;
+            right:0;
+            bottom:0;
+            width:100%;
+            height:100%;
+            padding:var(--padding);
+            background-color: transparent;
+            border:none;
+            font-size:inherit;
+            text-align: left;
+            z-index: 1;
+            &:hover{
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+        }
+        form{
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 0 5px;
+            width:100%;
+            padding:5px;
+            font-size:inherit;
+            visibility: hidden;
+            input{
+                width:100%;
+                padding: calc(var(--padding) / 2);
+                font-size:inherit;
+                border: none;
+            }
+            .accept,
+            .decline{
+                width:fit-content;
+                height: fit-content;
+                padding: 15px;
+                background-color:red;
+                border:none;
+                border-radius:3px;
+            }
+            .accept{
+                background-color:green;
+            }
+        }
+    }
 
     .media-button{
         width:100%;
@@ -659,6 +720,7 @@
         background-color: transparent;
         color:inherit;
         border: none;
+        font-size: 1rem;
         &:hover{
             background-color: rgba(255, 255, 255, 0.1);
         }
@@ -763,7 +825,7 @@
     position: sticky;
     top:calc(100% - var(--length));
     height:0;
-    z-index: 100000;
+    z-index: 2;
 }
 
 .jump-down-button{

@@ -256,7 +256,7 @@ export function AuthProvider({children}){
                 console.log("img del")
                 await deleteObject(storageRef(storage,url)).then(()=>{
                     console.log("file deleted successfully")
-                    updates[`/${id}/${path}`] = null;
+                    updates[`/${id}/chat_info/${path}`] = null;
                 }).catch((error)=>{
                     console.log(error);
                 })

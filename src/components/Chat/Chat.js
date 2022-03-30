@@ -162,7 +162,6 @@ export const ChatLayout = () => {
     const { currentUser, getConv , fetchUsersData,changeBG,currentChatBG,deleteChatData, getMedia } = UseAuth();
     const [loading,setLoading] = useState(true);
     const [loadingConv,setLoadingConv] = useState(true);
-    const navigate = useNavigate();
     const [conversation,setConversation] = useState([]);
     const [userData,setUserData] = useState({});
     const [chatsList, setChatsList] = useState([]);
@@ -172,7 +171,9 @@ export const ChatLayout = () => {
     const [media,setMedia] = useState({token:null,img_urls:[]});
     const mediaCont = useRef();
     const [MCount,setMCount] = useState({});
-
+    const [name,setName] = useState("");
+    const navigate = useNavigate();
+    
     const findChatObj = (element) =>{
         return element.key === chatID;
     }
@@ -185,10 +186,8 @@ export const ChatLayout = () => {
             setLoadingConv(false);
             return;
         }
-        // console.log(data.val);
         for(let uid in data.val.chat_info.members){
             const profile = await fetchUsersData(`${uid}/profile`);
-            // console.log(`${uid} profile: `, profile.val());
             obj[uid] = {
                 name:data.val.chat_info.members[uid]["nickname"] || data.val.chat_info.members[uid]["name"] || profile.val()["name"],
                 img_url:profile.val()?.img_url
@@ -208,12 +207,10 @@ export const ChatLayout = () => {
     }
     
     const handleChangeBG = async(e) => {
-        console.log("clicked here")
         if(!e.target.files[0]) return;
         const metadata = {
             contentType: e.target.files[0].type,
         };
-        console.log("file: ", e.target.files[0])
         changeBG(chatID,e.target.files[0],metadata);
     }
 
@@ -226,7 +223,6 @@ export const ChatLayout = () => {
             setLoading(false);
             return;
         }
-        // console.log(chats.val())
         for(let chat_key in chats.val()){
             let chat_data = await getConv(`${chat_key}/chat_info`);
             if(chatID === chat_key) is_chat_id_real = true;
@@ -254,8 +250,8 @@ export const ChatLayout = () => {
 
     const loadMedia = async () => {
         if(!chatID) return;
-        let trailing_number = (media.img_urls.length % 10)
-        let MAX_RESULTS =  10;
+        let MAX_RESULTS =  20;
+        let trailing_number = (media.img_urls.length % MAX_RESULTS)
         let data = await getMedia(chatID,media.token,MAX_RESULTS, trailing_number);
         console.log(data,media)
         if(data === -1) return;
@@ -292,6 +288,33 @@ export const ChatLayout = () => {
         mediaCont.current.classList.remove("active");
     }
 
+    const handleSubmit = () => {
+
+    }
+
+    const handleTextChange = (e, type) => {
+        switch(type){
+            case "nickname":{
+                setName(e.target.value);
+                break;
+            }
+            case "title":{
+                break;
+            }
+            default:{
+                break;
+            }
+        }
+    }
+
+    const setActiveButton = () => {
+        document.querySelector('.change-users-nickname-container')?.classList.add("active");
+    }
+    const unsetActiveButton = () => {
+        document.querySelector('.change-users-nickname-container')?.classList.remove("active");
+
+    }
+
     useEffect(()=>{
         getData();
         socket.current = io("https://chatty-deploy-heroku.herokuapp.com/");
@@ -318,10 +341,6 @@ export const ChatLayout = () => {
             setMedia({token:null,img_urls:[]});
         }
     },[chatID])
-
-    useEffect(()=>{
-        console.log("MCounting: ", MCount)
-    },[MCount])
     
     if(loading  || loadingConv)return <>loading....</>
     if(!chatsList.length) return <>no conversations you are lonely</>
@@ -368,7 +387,15 @@ export const ChatLayout = () => {
                                     { currentChatBG && <div><button onClick={()=>deleteChatData(chatID,currentChatBG,"background_img","img")}>remove img</button></div> } 
                                 </div>
                         </details>
-                        <button className="media-button" tabIndex={-1} onClick={viewMedia}>media</button>
+                        <div className="change-users-nickname-container">
+                            <button className="change-users-nickname-button" tabIndex={-1} onClick={setActiveButton} >Change nickname</button>
+                            <form >
+                                <input type="text" onChange={(e)=>handleTextChange(e,"nickname")} value={name || currentUser.displayName}/>
+                                <button type="button" className="decline" onClick={unsetActiveButton}></button>
+                                <button type="submit" className="accept"></button>
+                            </form>
+                        </div>
+                        <button className="media-button" tabIndex={-1} onClick={viewMedia}>Media</button>
                     </div>
                     <div ref={mediaCont} className="media-container">
                         <div className="media-overhead">
@@ -405,7 +432,6 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
     const config =  {
         signal: controller.signal,
         onDownloadProgress:(e)=>{
-            console.log("loading progress: ",parseInt(e.loaded / e.total * 100));
             setProgress(parseInt(e.loaded / e.total * 100));
         },
     }
@@ -434,7 +460,6 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
     }
 
     useEffect(()=>{
-        console.log("is file: : ", src.type !== "file")
         if(src.type !== "file") getImageData(src.url);
         if(src.type === "file") setProgress(100);
         return()=>{
@@ -514,7 +539,6 @@ export const Chat = () => {
             shift_key_down.current = false;
         }
         else if(enter_key_down.current && event.key === "Enter"){
-            
             enter_key_down.current = false;
         }
     }
@@ -918,10 +942,8 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
                         display_name = true
                     } 
                     prev_display_name.current = item.sender;
-                    // console.log("bitch: " ,MCount);
                     if(MCount?.[`${chatID}`]?.new_messages_count && ((conversation.length-1) - (MCount[`${chatID}`].new_messages_count-1)) === idx){
                         display_new_notification = true;
-                        console.log("buttss: ",((conversation.length-1) - (MCount[`${chatID}`].new_messages_count-1)), idx)
                     }
                     
                     return(
@@ -935,7 +957,6 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
                                 (display_new_notification)
                                 ? <div  className="display-new-notification">New message(s)</div>
                                 : <></>
-
                             }
                             <React.Fragment>
                             <div  className={`message-container  ${ item.sender === uid ? `user` : `` }`}>

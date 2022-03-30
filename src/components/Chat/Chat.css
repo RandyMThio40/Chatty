@@ -358,12 +358,12 @@
   right: 20px;
   padding: 20px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.15);
   cursor: pointer;
 }
 
 .message-wrapper.img .img-modal .img-modal-close:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.19);
 }
 
 .message-wrapper.img .img-modal .img-modal-close::after, .message-wrapper.img .img-modal .img-modal-close::before {
@@ -371,7 +371,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 65%;
+  width: 55%;
   height: 1px;
   background-color: white;
   -webkit-transform: translate(-50%, -50%) rotate(45deg);
@@ -902,6 +902,81 @@
   text-transform: capitalize;
 }
 
+.chat-settings-wrapper .change-users-nickname-container {
+  --padding:10px;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.chat-settings-wrapper .change-users-nickname-container.active .change-users-nickname-button {
+  visibility: hidden;
+  z-index: 0;
+}
+
+.chat-settings-wrapper .change-users-nickname-container.active form {
+  visibility: initial;
+}
+
+.chat-settings-wrapper .change-users-nickname-container .change-users-nickname-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  padding: var(--padding);
+  background-color: transparent;
+  border: none;
+  font-size: inherit;
+  text-align: left;
+  z-index: 1;
+}
+
+.chat-settings-wrapper .change-users-nickname-container .change-users-nickname-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chat-settings-wrapper .change-users-nickname-container form {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto auto;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  gap: 0 5px;
+  width: 100%;
+  padding: 5px;
+  font-size: inherit;
+  visibility: hidden;
+}
+
+.chat-settings-wrapper .change-users-nickname-container form input {
+  width: 100%;
+  padding: calc(var(--padding) / 2);
+  font-size: inherit;
+  border: none;
+}
+
+.chat-settings-wrapper .change-users-nickname-container form .accept,
+.chat-settings-wrapper .change-users-nickname-container form .decline {
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -webkit-fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 15px;
+  background-color: red;
+  border: none;
+  border-radius: 3px;
+}
+
+.chat-settings-wrapper .change-users-nickname-container form .accept {
+  background-color: green;
+}
+
 .chat-settings-wrapper .media-button {
   width: 100%;
   padding: 10px;
@@ -909,6 +984,7 @@
   background-color: transparent;
   color: inherit;
   border: none;
+  font-size: 1rem;
 }
 
 .chat-settings-wrapper .media-button:hover {
@@ -1045,7 +1121,7 @@
   position: sticky;
   top: calc(100% - var(--length));
   height: 0;
-  z-index: 100000;
+  z-index: 2;
 }
 
 .jump-down-button {
