@@ -2,7 +2,6 @@ import React,{useEffect, useState} from 'react';
 import { UseAuth } from '../../utility/useContextAuth';
 import { useNavigate } from 'react-router';
 import './Login.css';
-import {Link} from 'react-router-dom';
 
 
 export const Login = () => {

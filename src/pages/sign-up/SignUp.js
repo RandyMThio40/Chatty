@@ -1,18 +1,10 @@
 import React from 'react';
 import './SignUp.css'
 import { UseAuth } from '../../utility/useContextAuth.js'
-import { Navigate, useNavigate, Link, Outlet } from 'react-router-dom';
+import { Navigate, useNavigate, Outlet } from 'react-router-dom';
 
 
 export const AuthLayout = () => {
-
-    const style = {
-        position:"absolute",
-        top:0,
-        left:0,
-        fontSize:"1.2rem",
-        zIndex:1,
-    }
 
     return(
         <React.Fragment>

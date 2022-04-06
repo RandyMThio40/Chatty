@@ -1,12 +1,9 @@
 import React,{useContext, useState, useEffect} from 'react';
 import {auth,createUser,signOutUser, signInUser, database} from '../firebase.js';
-import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild, orderByKey, onChildChanged, limitToLast, endBefore, limitToFirst, startAt, orderByValue, startAfter } from "firebase/database";
+import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild } from "firebase/database";
 import { updateProfile } from 'firebase/auth';
 import { uploadBytes,ref as storageRef, getDownloadURL, deleteObject, list } from 'firebase/storage';
 import { storage } from '../firebase.js';
-import { v4 as uuidv4 } from 'uuid';
-import { async } from '@firebase/util';
-import { useParams } from 'react-router-dom';
 
 const AuthContext = React.createContext();
 
@@ -186,9 +183,18 @@ export function AuthProvider({children}){
             update(ref(database,`/ChatRooms`),updates);
         } catch(err){
             console.log(err);
-        }
-        
+        } 
     }  
+
+    const setNickName = (chatID,userID,nickname) => {
+        try{
+            const updates = {};
+            updates[`${chatID}/chat_info/members/${userID}/nickname`] = nickname;
+            update(ref(database,`/ChatRooms`),updates);
+        } catch(err){
+            console.log(err)
+        }
+    }
     
     const [currentChatBG,setCurrentChatBG] = useState("");
     
@@ -299,7 +305,6 @@ export function AuthProvider({children}){
         let date = new Date();
         updates[`ChatRooms/${chatID}/chat_info/members/${userID}/last_active`] = date.getTime();
         updates[`ChatRooms/${chatID}/chat_info/members/${userID}/last_active_date`] = date.toString();
-        console.log(date)
         update(ref(database,'/'),updates);
     }
 
@@ -336,6 +341,7 @@ export function AuthProvider({children}){
         getMedia,
         observeValue,
         setLastActive,
+        setNickName,
     } 
     
     useEffect(()=>{

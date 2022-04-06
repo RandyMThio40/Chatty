@@ -1,61 +1,59 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './home.css';
 import { UseAuth } from '../../utility/useContextAuth';
-import axios from 'axios';
-import { v4 } from 'uuid';
-import { uploadBytes,ref as storageRef, getDownloadURL, list } from 'firebase/storage';
-import { storage } from '../../firebase';
+// import axios from 'axios';
+// import { v4 } from 'uuid';
 
 export const Home = () => {
-    const downloaded_img = useRef();
-    const url_butt = useRef();
-    const { currentUser, uploadToStorage } = UseAuth();
-    const [imgAddress,setImgAddress] = useState("");
+    // const downloaded_img = useRef();
+    // const url_butt = useRef();
+    const {uploadToStorage } = UseAuth();
+    // const [imgAddress,setImgAddress] = useState("");
     const [file,setFile] = useState();
-    const [arr,setArr] = useState([]);
+    // const [arr,setArr] = useState([]);
 
-    const handleClick = () => {
-        const text = document.querySelector(".asd");
-        navigator.clipboard.writeText(text.value).then(()=>{
-            alert(`copied the text: ${text.value}` )
-        })
-        console.log("copy was " + text.value)
+    // const handleClick = () => {
+    //     const text = document.querySelector(".asd");
+    //     navigator.clipboard.writeText(text.value).then(()=>{
+    //         alert(`copied the text: ${text.value}` )
+    //     })
+    //     console.log("copy was " + text.value)
 
-    }
+    // }
 
-    const config = {
-        onDownloadProgress: (e)=>{
-            console.log(e);
-        }
-    }
+    // const config = {
+    //     onDownloadProgress: (e)=>{
+    //         console.log(e);
+    //     }
+    // }
 
-    const test = async(e) => {
-        e.preventDefault();
-        let t = await axios.post("http://localhost:3001/findImg",{url:imgAddress},config);
-        let b = new Blob([new Uint8Array(t.data.buffer.data)],{type:"image/jpg"});
-        let url = await uploadToStorage(b).then(blob=>{
-            setImgAddress("");
-            return blob;
-        })
-        let img = new Image();
-        // img.src = URL.createObjectURL(b);
-        img.src = url;
-        document.querySelector("#cont").appendChild(img);
-        console.log(t);
+    // const test = async(e) => {
+    //     e.preventDefault();
+    //     let t = await axios.post("http://localhost:3001/findImg",{url:imgAddress},config);
+    //     let b = new Blob([new Uint8Array(t.data.buffer.data)],{type:"image/jpg"});
+    //     let url = await uploadToStorage(b).then(blob=>{
+    //         setImgAddress("");
+    //         return blob;
+    //     })
+    //     let img = new Image();
+    //     // img.src = URL.createObjectURL(b);
+    //     img.src = url;
+    //     document.querySelector("#cont").appendChild(img);
+    //     console.log(t);
         
-    }
+    // }
 
-    const tes = async () => {
-        const res = await axios.get("https://chatty-deploy-heroku.herokuapp.com/hello");
-        console.log(res.data);
-    } 
+    // const tes = async () => {
+    //     const res = await axios.get("https://chatty-deploy-heroku.herokuapp.com/hello");
+    //     console.log(res.data);
+    // } 
 
-    const generateUUID = ()=>{
-        let uuid = v4();
-        console.log("uuid: ", v4());
-    }
+    // const generateUUID = ()=>{
+    //     let uuid = v4();
+    //     console.log("uuid: ", v4());
+    // }
 
-    useEffect( ()=>{   
+    // useEffect( ()=>{   
         // const res = await axios.get("https://i.ytimg.com/vi/4HwX-1C14CA/hqdefault.jpg",{
         //     responseType:"arraybuffer",
         // })
@@ -72,15 +70,15 @@ export const Home = () => {
         // console.log(test);
         // legitYTV();
         // downloadImg("https://i.ytimg.com/vi/EZ0AkWUcAEytSU/maxresdefault.jpg")
-        setArr((prev)=>{
-            for(let i = 0; i < 0; i++){
-                prev.push(1);
-            }
-            return prev
-        })
-        tes();
-        console.log(new Date().toString());
-    },[])
+        // setArr((prev)=>{
+        //     for(let i = 0; i < 0; i++){
+        //         prev.push(1);
+        //     }
+        //     return prev
+        // })
+        // tes();
+        // console.log(new Date().toString());
+    // },[])
 
  
     return(
