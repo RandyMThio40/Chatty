@@ -29,17 +29,17 @@ export function AuthProvider({children}){
         return signInUser(email,password);
     }
 
-    const cdb = async() => {
-        const db_ref = ref(database);
-        return get(child(db_ref,"Users/")).then((snapshot)=>{
+    // const cdb = async() => {
+    //     const db_ref = ref(database);
+    //     return get(child(db_ref,"Users/")).then((snapshot)=>{
 
-            // console.log("cdb: ",snapshot.val());
-            return snapshot.val();
-        }).catch((error)=>{
-            console.log(error);
-        })
+    //         // console.log("cdb: ",snapshot.val());
+    //         return snapshot.val();
+    //     }).catch((error)=>{
+    //         console.log(error);
+    //     })
 
-    }
+    // }
 
     const writeDB = (path, data_obj) => {
 
@@ -54,9 +54,9 @@ export function AuthProvider({children}){
             console.log(err)
         }
     }
-    const setInactiveUser = React.useCallback(() =>{
+    const setInactiveUser = () =>{
         set(ref(database,`Users/${currentUser.uid}/active`),false);
-    },[currentUser])
+    }
 
     const updatePhotoURL = async(current_user,url) =>{
         return updateProfile(current_user,{photoURL:url}).then(()=>{
@@ -155,7 +155,7 @@ export function AuthProvider({children}){
         return update(ref(database,`Users/`),updates);
     }
 
-    const fetchUsersData = async(path) => {
+    const fetchUsersData = async(path = "") => {
         return get(child(ref(database),`Users/${path}`));
     }
 
@@ -321,7 +321,6 @@ export function AuthProvider({children}){
         updatePhotoURL,
         setActiveUser,
         setInactiveUser,
-        cdb,
         queryList,
         pushDB,
         fetchUsersData,
@@ -370,7 +369,7 @@ export function AuthProvider({children}){
                 setLoading();
             }
         }
-    },[currentUser,setInactiveUser])
+    },[currentUser])
 
     return(
         <AuthContext.Provider value={value}>

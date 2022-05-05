@@ -225,7 +225,8 @@
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
-  background-color: red;
+  background-color: #747782;
+  color: white;
   padding: 5px 8px;
   border-radius: 0.5rem;
   text-align: center;
@@ -268,6 +269,12 @@
   margin-right: var(--length);
 }
 
+.message-container.user .message-content {
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+
 .message-container .alt-pic,
 .message-container .profile-pic {
   width: var(--length);
@@ -305,6 +312,14 @@
 }
 
 .message-content {
+  display: inherit;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
   max-width: 70%;
   width: -webkit-max-content;
   width: -moz-max-content;
@@ -510,7 +525,7 @@
 
 .message-text {
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.2em;
   overflow-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -928,6 +943,7 @@
   padding: var(--padding);
   background-color: transparent;
   border: none;
+  color: white;
   font-size: inherit;
   text-align: left;
   z-index: 1;
@@ -1034,6 +1050,7 @@
   transition: left 500ms ease-in-out;
   pointer-events: none;
   overflow: hidden;
+  z-index: 3;
 }
 
 .media-container.active {

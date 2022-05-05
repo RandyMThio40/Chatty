@@ -30,11 +30,11 @@ export const Users = () => {
 }
 
 export const Search = () => {
-    const {currentUser,cdb,writeDB,friends, friendRequests} = UseAuth();
+    const {currentUser,writeDB,friends,fetchUsersData, friendRequests} = UseAuth();
     const [users,setUsers] = useState([]);
 
     const getData = useCallback(async() => {
-        let data = await cdb();
+        let data = await fetchUsersData().then((res)=>res.val());
         let arr = [];
         for( let i in data){
             if(i === currentUser.uid) continue

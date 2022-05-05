@@ -154,7 +154,8 @@
     .display-new-notification,
     .display-date{
         width:max-content;
-        background-color: red;
+        background-color: $background-button;
+        color:white;
         padding:5px 8px;
         border-radius:0.5rem;
         text-align: center;
@@ -180,6 +181,9 @@
         .no-prof-img{
             margin: unset;
             margin-right:var(--length);
+        }
+        .message-content{
+            align-items: flex-end;
         }
     }
     .alt-pic,
@@ -209,6 +213,9 @@
 }
 
 .message-content{
+    display: inherit;
+    flex-direction:column;
+    align-items: flex-start;
     max-width: 70%;
     width:max-content;
     padding: 0 5px;
@@ -369,7 +376,7 @@
 
 .message-text{
     color:white;
-    font-size:1.2rem;
+    font-size:1.2em;
     overflow-wrap:break-word;
     white-space: pre-wrap;
     &::after{
@@ -655,7 +662,6 @@
         --padding:10px;
         width:100%;
         font-size:1rem;
-        
         &.active{
             .change-users-nickname-button{
                 visibility: hidden;
@@ -676,6 +682,7 @@
             padding:var(--padding);
             background-color: transparent;
             border:none;
+            color:white;
             font-size:inherit;
             text-align: left;
             z-index: 1;
@@ -761,6 +768,7 @@
     transition: left 500ms ease-in-out;
     pointer-events: none;
     overflow: hidden;
+    z-index: 3;
     &.active{
         pointer-events: initial;
         left: 0;

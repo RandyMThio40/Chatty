@@ -1,8 +1,8 @@
-import React,{useState,useEffect,useRef} from'react';
+import React,{useState,useEffect,useRef, useLayoutEffect} from'react';
 import { Link, Outlet,useNavigate,useOutletContext, useParams} from 'react-router-dom';
 import { UseAuth } from '../../utility/useContextAuth';
 import { database } from '../../firebase';
-import { get, off, onChildChanged, onValue, ref } from 'firebase/database';
+import { get, limitToLast, off, onChildChanged, onValue, orderByChild, orderByValue, ref, startAt } from 'firebase/database';
 import { io } from 'socket.io-client';
 import axios from "axios";
 import './Chat.css';
@@ -67,7 +67,7 @@ const DisplayTitle = ({members_obj}) => {
 }
 
 
-const LinkChat = ({item, roomID, setState}) => {
+const LinkChat = ({item, roomID, setState,userData}) => {
     const [number_of_new_messages,set_number_of_new_messages] = useState(0);
     const { currentUser } = UseAuth();
     const {chatID} = useParams();
@@ -75,45 +75,38 @@ const LinkChat = ({item, roomID, setState}) => {
     const last_active = useRef();
 
     useEffect(()=>{
+        console.log(userData)
         if(last_active.current && currentRoom.current === roomID && currentRoom.current !== chatID){
             last_active.current = new Date().getTime();
             set_number_of_new_messages(0);
             setState(prev => {
-                let obj = {};
-                obj[roomID] = {
-                    new_messages_count:0,
-                }
-                return {
-                    ...prev,
-                    ...obj,
-                }
+                prev[roomID] = {new_messages_count:0}
+                return prev
             });
+            console.log("triggered")
         }
         currentRoom.current = chatID;
-        if(chatID === roomID){
-
-        }
     },[chatID])
-
+    
     useEffect(()=>{
+
         onValue(ref(database,`/ChatRooms/${roomID}/messages`), async(snapshot)=>{
             try{
-                if(currentRoom.current === roomID && last_active.current){
+                console.log(currentRoom.current,roomID,last_active.current,!snapshot.val())
+                if(currentRoom.current === roomID && last_active.current || !snapshot.val()){
                     set_number_of_new_messages(0);
+                    setState(prev => {
+                        prev[roomID] = {new_messages_count:0,}
+                        return prev
+                    });
                     return;
                 }
-                last_active.current = last_active.current || await get(ref(database,`ChatRooms/${roomID}/chat_info/members/${currentUser.uid}/last_active`)).then(res=>res.val())
+                last_active.current = last_active.current || await get(ref(database,`ChatRooms/${roomID}/chat_info/members/${currentUser.uid}/last_active`)).then(res=>res.val()) || new Date().getTime();
                 let new_messages_count = Array.from(Object.entries(snapshot.val())).filter((duple)=> duple[1]["timeStamp"] > last_active.current).length;
-                new_messages_count && set_number_of_new_messages(prev => new_messages_count);
+                new_messages_count && set_number_of_new_messages(new_messages_count);
                 new_messages_count && setState(prev => {
-                    let obj = {};
-                    obj[roomID] = {
-                        new_messages_count:new_messages_count,
-                    }
-                    return {
-                        ...prev,
-                        ...obj,
-                    }
+                    prev[roomID] = {new_messages_count:new_messages_count,}
+                    return prev
                 });
             }catch(err){
                 set_number_of_new_messages(prev=>{
@@ -201,6 +194,12 @@ export const ChatLayout = () => {
         }
         setConversation(arr);
         if(loadingConv) setLoadingConv(false);
+        const chat_wrap = document.querySelector(".chat-wrapper");
+        if(!chat_wrap) return;
+        chat_wrap.style.scrollBehavior = "";
+        chat_wrap.scrollTop = chat_wrap?.scrollHeight;
+        chat_wrap.style.scrollBehavior = "smooth";
+
     }
 
     const clickChangeBG = () =>{
@@ -232,7 +231,8 @@ export const ChatLayout = () => {
                 let members_obj_arr = []
                 for( let member_uid in chat_data.val.members){
                     if(member_uid !== currentUser.uid){
-                        let member_name =  chat_data.val.members[member_uid].nickname || chat_data.val.members[member_uid].name || await fetchUsersData(`${member_uid}/profile/name`).then(snap=>snap.val());
+                        // let member_name =  chat_data.val.members[member_uid].nickname || chat_data.val.members[member_uid].name || await fetchUsersData(`${member_uid}/profile/name`).then(snap=>snap.val());
+                        let member_name = chat_data.val.members[member_uid].name || await fetchUsersData(`${member_uid}/profile/name`).then(snap=>snap.val());
                         members_obj_arr.push({uid:member_uid,member:member_name});
                     }
                 }
@@ -244,6 +244,7 @@ export const ChatLayout = () => {
                 });
             }
         }
+        console.log("chat_arr: ",chat_arr)
         setChatsList(chat_list);    
         if(!is_chat_id_real) navigate(`${chat_list[0]["key"]}`,{replace:true});
         setLoading(false);
@@ -289,6 +290,13 @@ export const ChatLayout = () => {
         mediaCont.current.classList.remove("active");
     }
 
+    const setActiveButton = () => {
+        document.querySelector('.change-users-nickname-container')?.classList.add("active");
+    }
+    const unsetActiveButton = () => {
+        document.querySelector('.change-users-nickname-container')?.classList.remove("active");
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if(name === userData[`${currentUser.uid}`]["name"]) return;
@@ -297,6 +305,7 @@ export const ChatLayout = () => {
         obj[`${currentUser.uid}`]["name"] = name;
         console.log(userData, obj)
         setUserData(obj)
+        unsetActiveButton();
 
     }
 
@@ -315,13 +324,6 @@ export const ChatLayout = () => {
         }
     }
 
-    const setActiveButton = () => {
-        document.querySelector('.change-users-nickname-container')?.classList.add("active");
-    }
-    const unsetActiveButton = () => {
-        document.querySelector('.change-users-nickname-container')?.classList.remove("active");
-
-    }
 
     useEffect(()=>{
         getData();
@@ -369,7 +371,7 @@ export const ChatLayout = () => {
                 </div>
                 {chatsList.length && chatsList.map((el,idx)=>{
                     return(
-                       <LinkChat key={idx} item={el} roomID={el.key} setState={setMCount}  />
+                       <LinkChat key={idx} item={el} roomID={el.key} setState={setMCount} userData={userData}  />
                     )
                 })}
             </div>
@@ -862,7 +864,6 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
     const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
     const prev_display_name = useRef("");
-    const render = useRef(0);
     
     const handleJump = () => {
         const chat_wrap = document.querySelector(".chat-wrapper");
@@ -923,20 +924,16 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
         deleteFunc(item)
     }
 
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         prev_date.current = {
             day:null,
             month:null,
             year:null
         }
-        const chat_wrap = document.querySelector(".chat-wrapper");
-        chat_wrap.scrollTop = chat_wrap.scrollHeight;
-        chat_wrap.style.scrollBehavior = "smooth";
-
-        return()=>{
-            chat_wrap.style.scrollBehavior = "";
-        }
     },[chatID])
+    useEffect(()=>{
+        console.log(MCount);
+    },[conversation])
     
     return(
             <div className="chat-wrapper">
@@ -969,12 +966,15 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
                     if(MCount?.[`${chatID}`]?.new_messages_count && ((conversation.length-1) - (MCount[`${chatID}`].new_messages_count-1)) === idx){
                         display_new_notification = true;
                     }
+                    if(MCount?.[`${chatID}`]?.new_messages_count === 0 && display_new_notification ){
+                        display_new_notification = false;
+                    }
                     
                     return(
                         <React.Fragment key={idx}>
                             {
                                 (display_time)
-                                ? <div className="display-date" >{today || `${weekday[date.getDay()]}, ${month[M]} ${D}, ${Y} ${render.current++}`}</div>
+                                ? <div className="display-date" >{today || `${weekday[date.getDay()]}, ${month[M]} ${D}, ${Y}`}</div>
                                 : <></>
                             }
                             {
@@ -982,7 +982,6 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
                                 ? <div  className="display-new-notification">New message(s)</div>
                                 : <></>
                             }
-                            
                             <React.Fragment>
                             <div  className={`message-container  ${ item.sender === uid ? `user` : `` }`}>
                                 <div className={`message-content ${(!display_name)? "no-prof-img" : ""}`}>
@@ -1025,8 +1024,8 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
     // console.log(prev_keys.every((item,idx)=>{
     //      return (item[1]["name"] === next_keys[idx][1]["name"] && item[1]["img_url"] === next_keys[idx][1]["img_url"]);
     // }))
-    console.log("prev: ",prevProps.conversation.length !== nextProps.conversation.length,prevProps.childChanged ,nextProps.childChanged);
-    if(prevProps.conversation.length !== nextProps.conversation.length || prevProps.childChanged !== nextProps.childChanged){
+    console.log("prev: ",prevProps,nextProps, prevProps.conversation.length !== nextProps.conversation.length,prevProps.childChanged ,nextProps.childChanged);
+    if( prevProps.chatID !== nextProps.chatID || prevProps.conversation.length !== nextProps.conversation.length || prevProps.childChanged !== nextProps.childChanged){
         return false;
     }
     return true;
