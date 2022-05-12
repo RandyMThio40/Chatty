@@ -7,14 +7,23 @@
 }
 
 .chat-list-links {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
   width: 300px;
-  background-color: #b5b5b5;
+  height: 100%;
+  background-color: #444655;
   -webkit-transition: width 3s linear;
   transition: width 3s linear;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  overflow: hidden;
+  border-right: 1px solid #A8AABC;
   -ms-flex-negative: 0;
       flex-shrink: 0;
+  color: white;
 }
 
 .chat-list-links::-webkit-scrollbar {
@@ -38,6 +47,12 @@
   font-size: 1.5rem;
 }
 
+.chat-list-links .chat-list-wrapper {
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
 .chat-list-links a {
   color: initial;
   text-decoration: none;
@@ -47,19 +62,16 @@
   width: 300px;
   height: 80px;
   padding: 10px;
-  background-color: lightgray;
+  color: white;
+  background-color: rgba(255, 255, 255, 0);
 }
 
 .chat-list-links .link-chat:hover {
-  background-color: rgba(211, 211, 211, 0.5);
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .chat-list-links .link-chat.active {
-  background-color: #4fe9e7;
-}
-
-.chat-list-links .link-chat.active:hover {
-  background-color: rgba(79, 233, 231, 0.9);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .chat-list-links .link-chat-title {
@@ -76,7 +88,6 @@
       -ms-flex-positive: 1;
           flex-grow: 1;
   width: 100vw;
-  background-color: blue;
   overflow: hidden;
 }
 
@@ -90,7 +101,6 @@
           flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: green;
   overflow: hidden;
 }
 
@@ -121,7 +131,8 @@
           align-items: center;
   width: 100%;
   padding: 10px 20px;
-  background-color: purple;
+  background-color: #444655;
+  color: white;
 }
 
 .chat-overhead .chat-overhead-prof {
@@ -279,7 +290,6 @@
 .message-container .profile-pic {
   width: var(--length);
   height: var(--length);
-  padding-bottom: 4px;
   border-radius: 50%;
   -o-object-fit: cover;
      object-fit: cover;
@@ -524,9 +534,11 @@
 }
 
 .message-text {
+  width: 100%;
   color: white;
   font-size: 1.2em;
   overflow-wrap: break-word;
+  word-break: break-word;
   white-space: pre-wrap;
 }
 
@@ -802,6 +814,11 @@
   opacity: 1;
   -webkit-appearance: none;
   background-color: white;
+  cursor: pointer;
+}
+
+#send-butt:active {
+  background-color: #e0e0e0;
 }
 
 .chat-settings-container {
@@ -832,6 +849,7 @@
   width: 330px;
   height: 100%;
   padding: 20px 5px;
+  border-left: 1px solid #A8AABC;
   color: white;
   font-size: 1.4rem;
   overflow-y: scroll;

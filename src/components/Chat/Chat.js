@@ -2,7 +2,7 @@ import React,{useState,useEffect,useRef, useLayoutEffect} from'react';
 import { Link, Outlet,useNavigate,useOutletContext, useParams} from 'react-router-dom';
 import { UseAuth } from '../../utility/useContextAuth';
 import { database } from '../../firebase';
-import { get, limitToLast, off, onChildChanged, onValue, orderByChild, orderByValue, ref, startAt } from 'firebase/database';
+import { get, off, onChildChanged, onValue, ref } from 'firebase/database';
 import { io } from 'socket.io-client';
 import axios from "axios";
 import './Chat.css';
@@ -29,12 +29,10 @@ const isComplete = (e) => {
 }
 
 const DisplayChatProfileImg = ({members_obj,user_imgs,overhead}) => {
-
     return (
         <div className={overhead ? "chat-overhead-profile-img" : "chat-settings-prof-img"}>
             {    
                 members_obj.members.map((obj,idx)=>{
-                    console.log("obj: ", obj);
                     return(
                         <React.Fragment key={idx}>
                             {
@@ -75,7 +73,6 @@ const LinkChat = ({item, roomID, setState,userData}) => {
     const last_active = useRef();
 
     useEffect(()=>{
-        console.log(userData)
         if(last_active.current && currentRoom.current === roomID && currentRoom.current !== chatID){
             last_active.current = new Date().getTime();
             set_number_of_new_messages(0);
@@ -83,7 +80,6 @@ const LinkChat = ({item, roomID, setState,userData}) => {
                 prev[roomID] = {new_messages_count:0}
                 return prev
             });
-            console.log("triggered")
         }
         currentRoom.current = chatID;
     },[chatID])
@@ -92,7 +88,6 @@ const LinkChat = ({item, roomID, setState,userData}) => {
 
         onValue(ref(database,`/ChatRooms/${roomID}/messages`), async(snapshot)=>{
             try{
-                console.log(currentRoom.current,roomID,last_active.current,!snapshot.val())
                 if(currentRoom.current === roomID && last_active.current || !snapshot.val()){
                     set_number_of_new_messages(0);
                     setState(prev => {
@@ -151,8 +146,10 @@ const toggleSetting = () => {
     }
 }
 
+
 export const ChatLayout = () => {
     const {chatID} = useParams();
+    const [connected,setConnected] = useState(false);
     const { currentUser, getConv , fetchUsersData,changeBG,currentChatBG,deleteChatData, getMedia, setNickName } = UseAuth();
     const [loading,setLoading] = useState(true);
     const [loadingConv,setLoadingConv] = useState(true);
@@ -199,7 +196,6 @@ export const ChatLayout = () => {
         chat_wrap.style.scrollBehavior = "";
         chat_wrap.scrollTop = chat_wrap?.scrollHeight;
         chat_wrap.style.scrollBehavior = "smooth";
-
     }
 
     const clickChangeBG = () =>{
@@ -231,7 +227,6 @@ export const ChatLayout = () => {
                 let members_obj_arr = []
                 for( let member_uid in chat_data.val.members){
                     if(member_uid !== currentUser.uid){
-                        // let member_name =  chat_data.val.members[member_uid].nickname || chat_data.val.members[member_uid].name || await fetchUsersData(`${member_uid}/profile/name`).then(snap=>snap.val());
                         let member_name = chat_data.val.members[member_uid].name || await fetchUsersData(`${member_uid}/profile/name`).then(snap=>snap.val());
                         members_obj_arr.push({uid:member_uid,member:member_name});
                     }
@@ -244,7 +239,6 @@ export const ChatLayout = () => {
                 });
             }
         }
-        console.log("chat_arr: ",chat_arr)
         setChatsList(chat_list);    
         if(!is_chat_id_real) navigate(`${chat_list[0]["key"]}`,{replace:true});
         setLoading(false);
@@ -255,21 +249,17 @@ export const ChatLayout = () => {
         let MAX_RESULTS =  20;
         let trailing_number = (media.img_urls.length % MAX_RESULTS)
         let data = await getMedia(chatID,media.token,MAX_RESULTS, trailing_number);
-        console.log(data,media)
         if(data === -1) return;
         if(media.img_urls[media.img_urls.length-1] && (media.img_urls[media.img_urls.length-1] === data.img_urls[data.img_urls.length-1])) return;
         setMedia(pre =>{return{token:data.token || pre.token,img_urls:[...pre.img_urls,...data.img_urls]}});
     }
 
     const loadOnScroll = (e) => {
-        console.log(e.target.scrollHeight - e.target.offsetHeight,e.target.scrollTop)
         if(e.target.scrollTopMax && e.target.scrollTopMax === parseInt(e.target.scrollTop)){
             loadMedia()
-            console.log("end1");
         }
         else if((e.target.scrollHeight - e.target.offsetHeight) <= parseInt(e.target.scrollTop)){
             loadMedia();
-            console.log("end2");
         }
     }
 
@@ -300,11 +290,10 @@ export const ChatLayout = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if(name === userData[`${currentUser.uid}`]["name"]) return;
-        setNickName(chatID,currentUser.uid,name);
+        setNickName(chatID,currentUser.uid,name || currentUser.displayName);
         let obj = {...userData};
         obj[`${currentUser.uid}`]["name"] = name;
-        console.log(userData, obj)
-        setUserData(obj)
+        setUserData(obj);
         unsetActiveButton();
 
     }
@@ -329,15 +318,14 @@ export const ChatLayout = () => {
         getData();
         socket.current = io("https://chatty-deploy-heroku.herokuapp.com/");
         socket.current.on("is-connected",(res)=>{
-            // console.log("ressss: ", socket.current.id);
+            setConnected(true);
+            console.log("ressss: ", socket.current.id);
         })
         socket.current.on("delete-message",(res)=>{
             console.log(res);
         })
-        console.log("%c chat layout component rendered",'background:red;color,white')
         return ()=>{
             socket.current.disconnect();
-            console.log("%c unmount",'background:yellow;');
             setLoadingConv(true);
             setLoading(true);
         }
@@ -345,18 +333,13 @@ export const ChatLayout = () => {
 
 
     useEffect(()=>{
-        console.log("getting current convo: ");
         getCurrentConv();
         return()=>{
             setMedia({token:null,img_urls:[]});
         }
     },[chatID])
-
-    useEffect(()=>{
-        console.log("userData: ", userData);
-    },[userData])
-    
     if(loading  || loadingConv)return <>loading....</>
+    if(!connected) return <>Cannot connect to server. Please refresh</>
     if(!chatsList.length) return <>no conversations you are lonely</>
     return(
         <section className="layout-chat">
@@ -369,11 +352,13 @@ export const ChatLayout = () => {
                         <div className="dot"></div>
                     </div>
                 </div>
-                {chatsList.length && chatsList.map((el,idx)=>{
-                    return(
-                       <LinkChat key={idx} item={el} roomID={el.key} setState={setMCount} userData={userData}  />
-                    )
-                })}
+                <div className="chat-list-wrapper">
+                    {chatsList.length && chatsList.map((el,idx)=>{
+                        return(
+                        <LinkChat key={idx} item={el} roomID={el.key} setState={setMCount} userData={userData}  />
+                        )
+                    })}
+                </div>
             </div>
             <div className="chat-main-content">
             {
@@ -398,7 +383,7 @@ export const ChatLayout = () => {
                                         <input ref={change_bg} onChange={handleChangeBG} type="file" accept="image/*" hidden/>
                                         <button id="change-background-button" onClick={clickChangeBG}>Change background img</button>
                                     </div>
-                                    { currentChatBG && <div><button onClick={()=>deleteChatData(chatID,currentChatBG,"background_img","img")}>remove img</button></div> } 
+                                    { currentChatBG && <div><button onClick={()=>deleteChatData(chatID,currentChatBG,"chat_info/background_img","img")}>remove img</button></div> } 
                                 </div>
                         </details>
                         <div className="change-users-nickname-container">
@@ -460,7 +445,6 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
                     return prev;
                 })
             }
-            console.log(`id: ${id}, res: `,res);
         } catch(err){
             console.log("aborted request",err);
             return
@@ -644,22 +628,16 @@ export const Chat = () => {
     useEffect(()=>{
         
         if(socket.current){
-            socket.current.on("response",(res)=>{
-                console.log("chat: ",res);
-            })
             socket.current.on("receive-message",(res)=>{
                 const chat_el = document.querySelector(".chat-wrapper");
+                const pixels_from_bottom = 100;
                 let at_bottom = false;
-                console.log("recieved-message event: ",res);
-                console.log(chat_el?.scrollTop , (chat_el?.scrollHeight - Math.ceil(chat_el?.getBoundingClientRect().height))-100)
-                if(chat_el?.scrollTop >= (chat_el?.scrollHeight - Math.ceil(chat_el?.getBoundingClientRect().height)) - 100){
-                    console.log("is scroll at bottom",);
+                if(chat_el?.scrollTop >= (chat_el?.scrollHeight - Math.ceil(chat_el?.getBoundingClientRect().height)) - pixels_from_bottom){
                     at_bottom = true;
                 }
                 setConversation(prev => [...prev,...res]);
                 if(at_bottom){
                     setTimeout(()=>{
-                        console.log("down")
                         chat_el.scrollTop = chat_el.scrollHeight;
                     })
                     at_bottom = false;
@@ -672,30 +650,7 @@ export const Chat = () => {
         
     },[])    
 
-    useEffect(()=>{
-        console.log("useEffect at Chat component",currentRoom);
-        if(socket.current){
-            socket.current.emit("join-room",currentRoom);
-        }
-        observeChatBG(currentRoom);
-        onChildChanged(ref(database,`ChatRooms/${currentRoom}/chat_info`),(snapshot)=>{
-            setUserData(prev=>{
-                for( let item in snapshot.val()){
-                    prev[item]["name"] = snapshot.val()[item]["nickname"] || snapshot.val()[item]["name"];
-                }
-                return prev;
-            })
-            setChildChanged(prev=>!prev);
-        })
-        prev_room.current = currentRoom;
-        return()=>{
-            console.log("leaving room: ",prev_room.current," currrent: ",currentRoom);
-            socket.current.emit("leave-room",prev_room.current);
-            clearChatBG();
-            off(ref(database,`ChatRooms/${prev_room.current}/chat_info`),"child_changed");
-        }
-    },[currentRoom])
-
+    
     useEffect(()=>{
         const chat_bg = document.querySelector(".chat-bg");
         chat_bg.style.backgroundImage = "none";
@@ -703,17 +658,35 @@ export const Chat = () => {
             chat_bg.style.backgroundImage = `url(${currentChatBG})`;
         }
     },[currentChatBG])
-
+    
     useEffect(()=>{
+        if(socket.current){
+            socket.current.emit("join-room",currentRoom);
+        }
+        observeChatBG(currentRoom);
+        onChildChanged(ref(database,`ChatRooms/${currentRoom}/chat_info`),(snapshot)=>{
+            setUserData(prev=>{
+                for( let item in snapshot.val()){
+                    if(snapshot.val()[item]["name"])
+                    prev[item]["name"] = snapshot.val()[item]["nickname"] || snapshot.val()[item]["name"];
+                }
+                prev["childChanged"] = !prev["childChanged"]
+                return prev;
+            })
+            setChildChanged(prev=>!prev);
+        })
+        prev_room.current = currentRoom;
         onValue(ref(database,`Users/${currentChatMembers.members[0].uid}/active`),(snapshot)=>{
-            // console.log(snapshot.val(), currentChatMembers.members[0].uid);
             setActive(snapshot.val());
         })
         window.addEventListener("unload",setLastActiveField)
-        return ()=>{
+        return()=>{
             window.removeEventListener('unload',setLastActiveField)
             setLastActive(currentRoom,currentUser.uid,new Date());
             setActive();
+            socket.current.emit("leave-room",prev_room.current);
+            clearChatBG();
+            off(ref(database,`ChatRooms/${prev_room.current}/chat_info`),"child_changed");
         }
     },[currentRoom])
 
@@ -793,7 +766,7 @@ const DisplayMessageContent = ({content}) => {
         let new_str = [];
     
         /* a way to determine if the text has non-breaking space(&nbsp;)
-        &nbsp; only renders in html cant be detected in text
+        &nbsp; only renders in html can't be detected in text
         so we examine innerHTML to search for &nbsp;*/
         let a = document.createElement("a");
         a.innerHTML = split_str;
@@ -828,7 +801,7 @@ const DisplayMessageContent = ({content}) => {
     if(content.text) return(
         <div className="message-wrapper">
                 <p className="message-text">
-                    {handleLinks(content?.text.trim())}
+                    {handleLinks(content.text.trim())}
                     <span className="message-time"><sub className="time-value">{displayTime(content.timeStamp)}</sub></span>
                 </p>
         </div>
@@ -855,7 +828,7 @@ const DisplayMessageContent = ({content}) => {
 
 
 
-const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,MCount,childChanged}) =>{
+const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,MCount}) =>{
     const prev_date = useRef({
         day:null,
         month:null,
@@ -881,9 +854,12 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
     useEffect(()=>{
         const jump_butt = document?.querySelector(".jump-down-button");
         let scroll_timer = -1;
-        document?.querySelector(".chat-wrapper")?.addEventListener('scroll',e=>{
-            // console.log("helloor ; ",e.target.scrollTopMax)
-            // console.log("e.target.scrollTopMax: ",e.target.scrollTopMax," e.target.offsetHeight: ",e.target.offsetHeight," e.target.scrollHeight: ",e.target.scrollHeight," e.target.scrollTop: ",parseInt(e.target.scrollTop)," e.target.scrollHeight - e.target.offsetHeight: ",e.target.scrollHeight - e.target.offsetHeight,e.target.scrollHeight - e.target.offsetHeight === e.target.scrollTop);
+        const chat_wrapper = document?.querySelector(".chat-wrapper");
+        chat_wrapper.scrollTop = chat_wrapper.scrollHeight;
+        chat_wrapper?.addEventListener('scroll',e=>{
+            // e.target.scrollTopMax is a firefox equivalent to (scrollHeight - offsetHeight)
+            // console.log("scroll values ; ",e, e.target.scrollTopMax , e.target.scrollHeight, e.target.scrollTop)
+            // console.log("e.target.scrollTopMax: ",e.target.scrollTopMax," e.target.offsetHeight: ",e.target.offsetHeight," e.target.scrollHeight: ",e.target.scrollHeight," e.target.scrollTop: ",parseInt(e.target.scrollTop)," e.target.scrollHeight - e.target.offsetHeight: ",e.target.scrollHeight - e.target.offsetHeight,e.target.scrollHeight - e.target.offsetHeight === parseInt(e.target.scrollTop));
             if(e.target.scrollTopMax && e.target.scrollTopMax === parseInt(e.target.scrollTop)){
                 jump_butt?.classList.remove("active");
             }
@@ -901,7 +877,6 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
     },[])
     
     const handleOptionClick= (e) => {
-        // e.stopPropagation();
         window.onclick = null;
         e.target?.classList.toggle("active");
         let active = e.target.classList.contains("active");
@@ -931,9 +906,6 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
             year:null
         }
     },[chatID])
-    useEffect(()=>{
-        console.log(MCount);
-    },[conversation])
     
     return(
             <div className="chat-wrapper">
@@ -1019,12 +991,7 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
             </div>
     )
 },(prevProps,nextProps) =>{
-    // let prev_keys = Object.entries(prevProps?.userData)
-    // let next_keys = Object.entries(nextProps?.userData)
-    // console.log(prev_keys.every((item,idx)=>{
-    //      return (item[1]["name"] === next_keys[idx][1]["name"] && item[1]["img_url"] === next_keys[idx][1]["img_url"]);
-    // }))
-    console.log("prev: ",prevProps,nextProps, prevProps.conversation.length !== nextProps.conversation.length,prevProps.childChanged ,nextProps.childChanged);
+    // console.log("prev: ",prevProps,nextProps, prevProps.conversation.length !== nextProps.conversation.length, prevProps.childChanged,nextProps.childChanged);
     if( prevProps.chatID !== nextProps.chatID || prevProps.conversation.length !== nextProps.conversation.length || prevProps.childChanged !== nextProps.childChanged){
         return false;
     }

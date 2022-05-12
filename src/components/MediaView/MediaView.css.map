@@ -1,9 +1,0 @@
-{
-    "version": 3,
-    "mappings": "AAAA,AAAA,qBAAqB,CAAA;EACjB,QAAQ,EAAC,KAAK;EACd,GAAG,EAAC,CAAC;EACL,IAAI,EAAC,CAAC;EACN,KAAK,EAAC,CAAC;EACP,MAAM,EAAC,CAAC;EACR,KAAK,EAAC,KAAK;EACX,MAAM,EAAC,KAAK;EACZ,UAAU,EAAC,kBAAkB;EAC7B,OAAO,EAAC,CAAC;CACZ",
-    "sources": [
-        "MediaView.scss"
-    ],
-    "names": [],
-    "file": "MediaView.css"
-}

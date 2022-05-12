@@ -17,7 +17,6 @@
         color:white;
     }
     .user-setting-container{
-        border-left:1px solid $bg-signup;
 
         &.active  .user-setting-wrapper::after{
             transform: rotate(45deg);

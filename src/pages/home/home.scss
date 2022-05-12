@@ -1,53 +1,16 @@
 .Home-container{
     display: flex;
     flex-direction: column;
+    align-items: center;
     width:100%;
     height:calc(100vh - 60px);
-}
-
-#cont{
-    display:flex;
-
-}
-
-.test-img{
-    width:50px;
-    height:50px;
-    border-radius:1rem;
-    object-fit:cover;
-}
-
-#container-container{
-    display:flex;
-    width:100vw;
-    height:100vh;
-    flex-direction: column;
-    background-color:red;
-    overflow: hidden;
-    aside{
-        height:80px;
-        background-color: aqua;
+    color:white;
+    font-size: 2rem;
+    h1{
+        font-size: 2em;
     }
-    #container{
-        height: 100%;
-        background-color:green;
-        overflow: hidden;
-        #wrapper{
-            height:100%;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            .le-item{
-                background-color: grey;
-                width:100%;
-                min-height: 50px;
-                margin: 5px 0;
-            }
-        }
-    }
-    #derp{
-        width:100%;
-        min-height:100px;
-        background-color:purple;
-
+    h3{
+        font-size: 1.2em;
     }
 }
+

@@ -90,12 +90,12 @@ const SignUp = () => {
             error_messages.push("a longer password (required)");
         }
 
-        // if(password_strength >= 70){
-        //     setPasswordStrength("strong");
-        // }
-        // if(password_strength < 70 && password_strength >= 35){
-        //     setPasswordStrength("moderate");
-        // }
+        if(password_strength >= 70){
+            setPasswordStrength("strong");
+        }
+        if(password_strength < 70 && password_strength >= 35){
+            setPasswordStrength("moderate");
+        }
         if(password_strength < 35) {
             setPasswordStrength("weak");
             setError(error_messages);
@@ -218,9 +218,6 @@ const SignUp = () => {
                 </form>
                 <hr/>
                 <span> already have an account? <button className="button-link" onClick={()=>{navigate("Login")}}>Login</button></span>
-            </div>
-            <div className="growing">
-
             </div>
         </div>
     )
