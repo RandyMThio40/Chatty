@@ -64,6 +64,7 @@ export const Search = () => {
             <h3>Users</h3>
             <div className="wrapper">
                 {users?.map((el,idx)=>{
+                    if(!el.data) return;
                     let className = "";
                     let disabled = false;
                     if(friends === null) { }
@@ -78,13 +79,13 @@ export const Search = () => {
                         
                         <div className="select-user-option" key={idx}>
                             {
-                                (el.data.img_url) 
+                                (el.data?.img_url) 
                                 ? <img className="select-user-img incomplete" onLoad={isComplete} src={el.data.img_url} alt={el.data.img_url} />
                                 : <p className='alt-user-img'><span>{el.data?.name[0]}</span></p>
                             }
                             <div>
-                                <p className="select-user-name">{el.data.name}</p>  
-                                
+                                <p className="select-user-name">{el.data?.name}</p>  
+
                                 <button onClick={(e)=>{handleFriendRequest(e,el.uid)}} className={`friend-request-butt ${className}`} disabled={disabled} ></button>
                             </div>
                         </div>
@@ -179,7 +180,7 @@ export const Friends = () => {
         setFriendList(arr);
     },[friends,currentUser.uid])
 
-    const sendMessage = async(chat_id) => {
+    const sendMessage = (chat_id) => {
         navigate(`../../Chats/${chat_id}`,{replace:true});
     }
 

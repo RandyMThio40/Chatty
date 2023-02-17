@@ -5,9 +5,13 @@ import { database } from '../../firebase';
 import { get, off, onChildChanged, onValue, ref } from 'firebase/database';
 import { io } from 'socket.io-client';
 import axios from "axios";
+import trashIcon from "../../imgs/trash.svg";
+import makeChatIcon from "../../imgs/makeChat.svg"
+import {v4 as uuidv4} from 'uuid'; 
 import './Chat.css';
 
 import jump_down_icon from '../../imgs/down_arrow_icon.svg';
+import MakeChatModal from '../makeChatModal/makeChatModal';
 
 const displayTime = (date_obj) => {
     let D = new Date(date_obj);
@@ -97,7 +101,7 @@ const LinkChat = ({item, roomID, setState,userData}) => {
                     return;
                 }
                 last_active.current = last_active.current || await get(ref(database,`ChatRooms/${roomID}/chat_info/members/${currentUser.uid}/last_active`)).then(res=>res.val()) || new Date().getTime();
-                let new_messages_count = Array.from(Object.entries(snapshot.val())).filter((duple)=> duple[1]["timeStamp"] > last_active.current).length;
+                let new_messages_count = Array.from(Object.entries(snapshot.val())).filter((duple)=> duple[1]["timestamp"] > last_active.current).length;
                 new_messages_count && set_number_of_new_messages(new_messages_count);
                 new_messages_count && setState(prev => {
                     prev[roomID] = {new_messages_count:new_messages_count,}
@@ -170,6 +174,7 @@ export const ChatLayout = () => {
     }
 
     const getCurrentConv = async() => {
+        if(chatID === "new") return;
         const data = await getConv(chatID);
         let obj = {};
         if(!data.val){
@@ -223,7 +228,8 @@ export const ChatLayout = () => {
             let chat_data = await getConv(`${chat_key}/chat_info`);
             if(chatID === chat_key) is_chat_id_real = true;
             chat_arr.push(chat_data.val);
-            if(chat_data.val.type === "private"){
+            console.log(chat_data);
+            // if(chat_data.val.type === "private"){
                 let members_obj_arr = []
                 for( let member_uid in chat_data.val.members){
                     if(member_uid !== currentUser.uid){
@@ -237,7 +243,7 @@ export const ChatLayout = () => {
                     title: chat_data.val.title,
                     type: chat_data.val.type
                 });
-            }
+            // }
         }
         setChatsList(chat_list);    
         if(!is_chat_id_real) navigate(`${chat_list[0]["key"]}`,{replace:true});
@@ -314,11 +320,11 @@ export const ChatLayout = () => {
     }
 
 
-    useEffect(()=>{
+    useLayoutEffect(()=>{
         getData();
-        socket.current = io("https://chatty-deploy-heroku.herokuapp.com/");
+        socket.current = io("https://chatty-server-cstv7126e-randymthio40.vercel.app/");
         socket.current.on("is-connected",(res)=>{
-            setConnected(true);
+            // setConnected(true);
             console.log("ressss: ", socket.current.id);
         })
         socket.current.on("delete-message",(res)=>{
@@ -339,17 +345,20 @@ export const ChatLayout = () => {
         }
     },[chatID])
     if(loading  || loadingConv)return <>loading....</>
-    if(!connected) return <>Cannot connect to server. Please refresh</>
+    // if(!connected) return <>Cannot connect to server. Please refresh</>
     if(!chatsList.length) return <>no conversations you are lonely</>
     return(
         <section className="layout-chat">
             <div className="chat-list-links"> 
                 <div className="chat-list-overhead">
                     <h3 className="chat-list-header">Chats</h3>
-                    <div className="dot-container">
-                        <div className="dot"></div>
-                        <div className="dot"></div>
-                        <div className="dot"></div>
+                    <div className="icon-wrapper" id="delete-chat-icon">
+                        <img  src={trashIcon} alt={`trash.svg`} />
+                        <aside className="tooltip">Delete Chat</aside>
+                    </div>
+                    <div className="icon-wrapper" id="make-chat-icon" onClick={()=>{navigate("new")}}>
+                        <img  src={makeChatIcon} alt={`makeChat.svg`} />     
+                        <aside className="tooltip">Create Chat</aside>
                     </div>
                 </div>
                 <div className="chat-list-wrapper">
@@ -364,7 +373,8 @@ export const ChatLayout = () => {
             {
                 (chatsList.find(findChatObj))
                 ? <Outlet context={[socket,chatID,conversation,setConversation,userData,setUserData,chatsList.find(findChatObj),prev_room,MCount]} />
-                : <div style={{width:"100%"}}>Chat does not exist</div>
+                // : <div style={{width:"100%"}}>Chat does not exist</div>
+                : <MakeChatModal/>
             }
             </div>
             {
@@ -437,7 +447,7 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
 
     const getImageData = async (url) => {
         try{
-            let res = await axios.post("https://chatty-deploy-heroku.herokuapp.com/findImg",{url:url},config);
+            let res = await axios.post("https://chatty-server-cstv7126e-randymthio40.vercel.app/findImg",{url:url},config);
             let blob = new Blob([new Uint8Array(res.data.buffer.data)],{type:"image/png"})
             if(!cancel.current){
                 callback(prev => {
@@ -495,8 +505,8 @@ export const Chat = () => {
         setMedia([]);
         return await Promise.all(media.filter((item,idx)=>item.blob).map(async(src,idx)=>{
             let date = new Date().getTime();
-            const url = await uploadToStorage(src.blob,`${currentRoom}/media/${date}`)
-            return {text:null,img:url,timeStamp: date, sender: currentUser.uid,type:"media"}     
+            const url = await uploadToStorage(src.blob,`${currentRoom}/media/`)
+            return {text:null,img:url,timestamp: date, sender: currentUser.uid,type:"media"}     
         }));
     }
 
@@ -512,7 +522,7 @@ export const Chat = () => {
             let a = document.createElement("a");
             a.innerHTML = message;
             let polished_message = `${a.innerHTML.replace(/&nbsp;/g," ")}`.trim();
-            let message_obj = {text: polished_message, timeStamp: new Date().getTime(), img:null, sender: currentUser.uid,type:'text'};
+            let message_obj = {text: polished_message, timestamp: new Date().getTime(), img:null, sender: currentUser.uid,type:'text'};
             message_arr.push(message_obj);
         }
         if(media.length && !media.find((item)=>!item["blob"])){
@@ -679,7 +689,8 @@ export const Chat = () => {
         onValue(ref(database,`Users/${currentChatMembers.members[0].uid}/active`),(snapshot)=>{
             setActive(snapshot.val());
         })
-        window.addEventListener("unload",setLastActiveField)
+        window.addEventListener("unload",setLastActiveField);
+        
         return()=>{
             window.removeEventListener('unload',setLastActiveField)
             setLastActive(currentRoom,currentUser.uid,new Date());
@@ -712,7 +723,7 @@ export const Chat = () => {
                 <section className="conv-container">
                     { 
                         (conversation.length) 
-                        ? <Conversation chatID={currentRoom} uid={currentUser.uid} conversation={conversation} userData={userData} deleteFunc={removeMessage} MCount={MCount} childChanged={childChanged} /> 
+                        ? <Conversation chatID={currentRoom} conversation={conversation} userData={userData} deleteFunc={removeMessage} MCount={MCount} childChanged={childChanged} /> 
                         : <></>
                     }
                 </section>
@@ -754,8 +765,8 @@ export default Chat;
 
 const ProfileImg = ({display = true,img_type}) => {
     if(!display) return <></>
-    if(img_type["img_url"]) return <img className="profile-pic" src={img_type["img_url"]} alt="img" />
-    if(!img_type["img_url"]) return <p className='alt-pic'><span>{img_type["name"][0]}</span></p>
+    if(img_type?.["img_url"]) return <img className="profile-pic" src={img_type["img_url"]} alt="img" />
+    if(!img_type?.["img_url"]) return <p className='alt-pic'><span>{img_type?.["name"][0]}</span></p>
     
 }
 
@@ -802,7 +813,7 @@ const DisplayMessageContent = ({content}) => {
         <div className="message-wrapper">
                 <p className="message-text">
                     {handleLinks(content.text.trim())}
-                    <span className="message-time"><sub className="time-value">{displayTime(content.timeStamp)}</sub></span>
+                    <span className="message-time"><sub className="time-value">{displayTime(content.timestamp)}</sub></span>
                 </p>
         </div>
     )
@@ -810,7 +821,7 @@ const DisplayMessageContent = ({content}) => {
         <div className="message-wrapper img">
             <div className="message-img-wrapper loading">
                 <img onLoad={isComplete} onClick={(e)=>{e.target.parentNode.parentNode.classList.add("active")}} className="message-img" src={content.img} alt={content.img} />
-                <span className="message-time"><span className="time-value">{displayTime(content.timeStamp)}</span></span>
+                <span className="message-time"><span className="time-value">{displayTime(content.timestamp)}</span></span>
             </div>
             <div className="img-modal">
                 <div className="img-modal-background" onClick={(e)=>{e.target.parentNode.parentNode.classList.remove("active")}}></div>
@@ -827,8 +838,22 @@ const DisplayMessageContent = ({content}) => {
 }
 
 
+const isDifferentObj = (prevObj,nextObj) => {
+    let prevKeys = Object.keys(prevObj);
+    let nextKeys = Object.keys(nextObj);
+    if( prevKeys.length !== nextKeys.length) return false;
+    for(let key in prevObj){
+        if(nextObj[key] !== undefined){
+            // console.log(prevObj,nextObj)
+            return false;
+        }
+    }
 
-const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,MCount}) =>{
+    return true;
+}
+
+const Conversation = React.memo(({chatID,conversation,userData, deleteFunc,MCount}) =>{
+    const {currentUser} = UseAuth();
     const prev_date = useRef({
         day:null,
         month:null,
@@ -906,6 +931,8 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
             year:null
         }
     },[chatID])
+
+    if(!conversation.length) return
     
     return(
             <div className="chat-wrapper">
@@ -915,7 +942,7 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
                     </div>
                 </div>
                 {conversation?.map((item,idx)=>{
-                    let date = new Date(item.timeStamp);
+                    let date = new Date(item.timestamp);
                     let today;
                     let Y = date.getFullYear();
                     let M = date.getMonth();
@@ -955,21 +982,21 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
                                 : <></>
                             }
                             <React.Fragment>
-                            <div  className={`message-container  ${ item.sender === uid ? `user` : `` }`}>
+                            <div  className={`message-container  ${ item.sender === currentUser.uid ? `user` : `` }`}>
                                 <div className={`message-content ${(!display_name)? "no-prof-img" : ""}`}>
                                     {
                                         (display_name)
-                                            ?<h3 className="message-sender">{userData[item.sender]["name"]}</h3>
+                                            ?<h3 className="message-sender">{userData[item.sender]?.["name"]}</h3>
                                             :<></>
                                     }
-                                    <div style={{display:"flex",flexWrap:"nowrap",flexDirection:(item.sender === uid) ? "row" : "row-reverse"}}>
+                                    <div style={{display:"flex",flexWrap:"nowrap",flexDirection:(item.sender === currentUser.uid) ? "row" : "row-reverse"}}>
                                         <div className='dot-container'  onClick={handleOptionClick} >
                                             <div className="dot"></div>
                                             <div className="dot"></div>
                                             <div className="dot"></div>
                                             <div  className="message-options" onClick={(e)=>e.stopPropagation()}>
                                                 {
-                                                    (item.sender === uid) &&
+                                                    (item.sender === currentUser.uid) &&
                                                     <div className="delete-container" onClick={(e)=>{handleRemove(e,item)}}>
                                                         <div className="delete-icon"/>
                                                         <span>delete</span>
@@ -991,8 +1018,8 @@ const Conversation = React.memo(({chatID,uid,conversation,userData, deleteFunc,M
             </div>
     )
 },(prevProps,nextProps) =>{
-    // console.log("prev: ",prevProps,nextProps, prevProps.conversation.length !== nextProps.conversation.length, prevProps.childChanged,nextProps.childChanged);
-    if( prevProps.chatID !== nextProps.chatID || prevProps.conversation.length !== nextProps.conversation.length || prevProps.childChanged !== nextProps.childChanged){
+    // console.log("prev: ",prevProps,nextProps,prevProps.chatID !== nextProps.chatID, prevProps.conversation.length !== nextProps.conversation.length, prevProps.childChanged !==nextProps.childChanged,isDifferentObj(prevProps.userData,nextProps.userData));
+    if( prevProps.chatID !== nextProps.chatID || prevProps.conversation.length !== nextProps.conversation.length || prevProps.childChanged !== nextProps.childChanged || !isDifferentObj(prevProps.userData,nextProps.userData) ){
         return false;
     }
     return true;

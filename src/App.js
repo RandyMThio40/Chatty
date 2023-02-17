@@ -31,7 +31,7 @@ function App() {
                   <Route path="Friends" element={<Friends/>}/>
                 </Route>
                 <Route path="Chats" element={<ChatLayout/>}>
-                  <Route path=":chatID" element={<Chat/>} />
+                  <Route path=":chatID" element={<Chat/>} />  
                 </Route>
             </Route>
             <Route path="*"element={<NotFound/>} />

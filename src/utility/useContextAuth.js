@@ -1,9 +1,10 @@
 import React,{useContext, useState, useEffect} from 'react';
 import {auth,createUser,signOutUser, signInUser, database} from '../firebase.js';
-import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild } from "firebase/database";
+import { ref,get, child, set,query,equalTo, push, onValue, update, orderByChild, orderByValue, orderByKey } from "firebase/database";
 import { updateProfile } from 'firebase/auth';
 import { uploadBytes,ref as storageRef, getDownloadURL, deleteObject, list } from 'firebase/storage';
 import { storage } from '../firebase.js';
+import { HashString } from './simpleHash.js';
 
 const AuthContext = React.createContext();
 
@@ -99,7 +100,35 @@ export function AuthProvider({children}){
     const pushDB = (path,data) => {
         set(push(ref(database,`Users/${path}`)),data);
     }
+
+    /* 
+        Creates a group chat and updates all group members' chatrooms list
+        @param {Object} groupMembers - array of particapants' uid
+        @param {string} title - name of chatRoom
+    */
+    const createGroupChat = async(title="",groupMembers=undefined) => {
+        try {
+            if(!groupMembers || !title) return
+            const chatKey = push(child(ref(database),'ChatRooms')).key;
+            const chatRoomsUpdates = {};
+            const userUpdates = {};
+            let groupMembersUid = Object.keys(groupMembers);
+            groupMembersUid.forEach((memberUid)=>{
+                chatRoomsUpdates[`chat_info/members/${memberUid}`] = {name:groupMembers[`${memberUid}`].profile.name,active_member:true};
+                userUpdates[`${memberUid}/chats/${chatKey}/group/members`] =  groupMembersUid.filter((uid)=>uid !== memberUid)
+            })
+            chatRoomsUpdates[`chat_info/type`] = "group";
+            chatRoomsUpdates[`chat_info/title`] = title;
+            update(ref(database,`/ChatRooms/${chatKey}`),chatRoomsUpdates)
+            update(ref(database,`/Users`),userUpdates)
+            return 200
+        } catch(err){
+            console.log(err)
+            return 400;
+        }
+    }
  
+
     const acceptFriendReq = async(uid,user_uid) => {
         const existing_chat = await findChat(uid,user_uid);
         const data_key = push(child(ref(database), 'ChatRooms')).key;
@@ -206,12 +235,17 @@ export function AuthProvider({children}){
     const clearChatBG = ()=> {
         setCurrentChatBG("");
     }
-    
+
     const uploadToStorage = async (obj,path="test_upload_img") => {
-        const url = await uploadBytes(storageRef(storage,path),obj,{contentType:"image/png"})
-        .then(()=>getDownloadURL(storageRef(storage,path)));
-        console.log("url: ",url)
-        return url
+        try{
+            let uid = push(child(ref(database),'/')).key;
+            const url = await uploadBytes(storageRef(storage,`${path}${uid}`),obj,{contentType:"image/png"})
+            .then(()=>getDownloadURL(storageRef(storage,`${path}${uid}`)))
+            console.log("url: ",url)
+            return url
+        } catch (err){
+            console.log("error in uploading image",err);
+        }
     }
 
     const sendMessage = async (chat_id,data) => {
@@ -249,6 +283,7 @@ export function AuthProvider({children}){
         }
         update(ref(database,`/ChatRooms`),updates);
     }
+    
     const deleteChatData = async(id,url,path,type) => {
         const updates = {};
         console.log("id: ",id," url: ",url," path: ",path, "type: ",type)
@@ -307,6 +342,26 @@ export function AuthProvider({children}){
         updates[`ChatRooms/${chatID}/chat_info/members/${userID}/last_active_date`] = date.toString();
         update(ref(database,'/'),updates);
     }
+    const getFriendsList = async (user) => {
+        try{
+            const que = query(ref(database,`Users/${user}/friends`), orderByValue(),equalTo(true));
+            const data = await get(que).then(res=>res.val());
+            const friends_data = [];
+            for(let uid in data){
+                const friend_profile = await get(ref(database,`Users/${uid}/profile`));
+                friends_data.push({
+                    uid:uid,
+                    profile:friend_profile.val(),
+                });
+            }
+            return friends_data;
+        }catch(err){
+            console.log(err);
+        }
+    }
+
+    
+   
 
     const value = {
         currentUser,
@@ -341,6 +396,8 @@ export function AuthProvider({children}){
         observeValue,
         setLastActive,
         setNickName,
+        getFriendsList,
+        createGroupChat,
     } 
     
     useEffect(()=>{
@@ -354,6 +411,25 @@ export function AuthProvider({children}){
 
     useEffect(()=>{
         if(currentUser){
+            const test = async() => {
+                const que = query(ref(database,`/Users/ads/1ObJwt9gusgL8UKi376WV1bt9s42/chats`),orderByChild("group/members"),equalTo(""));
+                let data = await get(que)?.then(snapshot => {
+                    if(!snapshot.val()) return null;
+                    return snapshot.val();
+                });
+                console.log(data);
+                return data;
+
+            }
+            // test();`
+            const t = async () => {
+                const test_ref = await get(query(ref(database,"ChatRooms/-Mw4w7hEQ9qXyr_sznLc/messages"),orderByChild('type'), equalTo("media")));
+                test_ref.forEach((item)=>{
+                    console.log(item.key,item.val(),item.val().timeStamp)
+                })
+
+            }
+            t();
             setActiveUser(currentUser.uid);
             onValue(ref(database,`Users/${currentUser.uid}/friends`),(snapshot)=>{
                 setFriends(snapshot.val());

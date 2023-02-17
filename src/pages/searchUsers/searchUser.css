@@ -61,19 +61,29 @@
 .search-user-container .friends-page .wrapper,
 .search-user-container .search-users-page .wrapper,
 .search-user-container .friend-request-page .wrapper {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -ms-flex-wrap: wrap;
-      flex-wrap: wrap;
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-  -ms-flex-line-pack: start;
-      align-content: flex-start;
-  -webkit-box-pack: start;
-      -ms-flex-pack: start;
-          justify-content: flex-start;
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem;
+}
+
+@media screen and (max-width: 1050px) {
+  .search-user-container .friends-page .wrapper,
+  .search-user-container .search-users-page .wrapper,
+  .search-user-container .friend-request-page .wrapper {
+    -ms-grid-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .search-user-container .friends-page .wrapper,
+  .search-user-container .search-users-page .wrapper,
+  .search-user-container .friend-request-page .wrapper {
+    -ms-grid-columns: 1fr;
+        grid-template-columns: 1fr;
+  }
 }
 
 .select-user-option {
@@ -92,10 +102,7 @@
   background-color: #ffffff43;
   border-radius: 0.2rem;
   padding: 10px;
-  margin: 0.5rem;
   min-width: 250px;
-  width: 20vw;
-  max-width: 400px;
   font-size: 1.2rem;
   color: white;
 }
@@ -165,6 +172,7 @@
   border-radius: 0.2rem;
   text-transform: capitalize;
   margin-right: 10px;
+  white-space: nowrap;
 }
 
 .select-user-option .select-user-name ~ button:hover {

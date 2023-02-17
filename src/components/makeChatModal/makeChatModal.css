@@ -1,0 +1,381 @@
+.make-chat-modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999999;
+}
+
+.make-chat-modal-container .modal-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.make-chat-modal-container input[type="text"] {
+  margin: 5px 0;
+  font-family: inherit;
+  font-size: 1.2rem;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.6rem;
+  border-radius: 1.1rem;
+  color: white;
+  border: none;
+}
+
+.make-chat-modal-container #close-icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: absolute;
+  width: 3rem;
+  height: 3rem;
+  top: 20px;
+  right: 20px;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.make-chat-modal-container #close-icon:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.make-chat-modal-container #close-icon::after, .make-chat-modal-container #close-icon::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 1px;
+  border-radius: 2px;
+  background-color: white;
+  -webkit-transform: translate(-50%, -50%) rotate(45deg);
+          transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.make-chat-modal-container #close-icon::before {
+  -webkit-transform: translate(-50%, -50%) rotate(-45deg);
+          transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.make-chat-modal-container .make-chat-content {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  max-width: 700px;
+  padding: 1rem;
+  background-color: #444655;
+  border-radius: 1rem;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+.make-chat-modal-container .make-chat-content .make-group-chat-header-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.make-chat-modal-container .make-chat-content .make-group-chat-header1 {
+  font-size: 3.2rem;
+  color: white;
+}
+
+.make-chat-modal-container .make-chat-content .make-group-chat-header5 {
+  font-size: 1.5rem;
+  color: white;
+}
+
+.make-chat-modal-container .make-chat-content #back-button {
+  display: inline;
+  padding: 1.4rem;
+  background-color: rgba(0, 0, 0, 0.15);
+  border: none;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.make-chat-modal-container .make-chat-content #back-button:hover, .make-chat-modal-container .make-chat-content #back-button:focus {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.make-chat-modal-container .make-chat-content #back-button:hover img {
+  opacity: 0.85;
+}
+
+.make-chat-modal-container .make-chat-content #back-button:active {
+  opacity: 0.85;
+}
+
+.make-chat-modal-container .make-chat-content #back-button img {
+  width: 60%;
+  height: 60%;
+  position: absolute;
+  stroke: white;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+.make-chat-modal-container .make-chat-content button[type="submit"],
+.make-chat-modal-container .make-chat-content input[type="submit"] {
+  width: 100%;
+  display: block;
+  font-size: 1.1rem;
+  font-weight: bold;
+  background-color: #487BE9;
+  border: none;
+  border-radius: 0.3rem;
+  color: white;
+  padding: 0.6rem;
+  margin: 5px 0;
+  cursor: pointer;
+}
+
+.make-chat-modal-container .make-chat-content button[type="submit"]:disabled,
+.make-chat-modal-container .make-chat-content input[type="submit"]:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+.make-chat-modal-container .make-chat-content button[type="submit"]:disabled:hover,
+.make-chat-modal-container .make-chat-content input[type="submit"]:disabled:hover {
+  background-color: grey;
+}
+
+.make-chat-modal-container .make-chat-content button[type="submit"]:active,
+.make-chat-modal-container .make-chat-content input[type="submit"]:active {
+  opacity: 0.9;
+}
+
+.make-chat-modal-container .make-chat-content button[type="submit"]:hover,
+.make-chat-modal-container .make-chat-content input[type="submit"]:hover {
+  background-color: #486ee9;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  min-height: 500px;
+  height: 90vh;
+  color: white;
+  padding: 0 5px;
+  overflow: hidden;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
+  overflow-x: scroll;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 5rem;
+  margin: 0.5rem 0.2rem;
+  overflow: hidden;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile {
+  width: 4rem;
+  height: 4rem;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile .alt-pic,
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile img {
+  width: 100%;
+  height: 100%;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile .alt-pic span,
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile img span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  text-transform: capitalize;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile .remove-participant {
+  position: absolute;
+  top: 0;
+  left: 70%;
+  width: 1.2rem;
+  height: 1.2rem;
+  background-color: grey;
+  border: none;
+  border-radius: 50%;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile .remove-participant::before, .make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile .remove-participant::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 0.1rem;
+  -webkit-transform: translate(-50%, -50%) rotate(45deg);
+          transform: translate(-50%, -50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview .participant-profile .remove-participant::after {
+  -webkit-transform: translate(-50%, -50%) rotate(-45deg);
+          transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .participants-wrapper .participant-preview h6 {
+  width: 80%;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.make-chat-modal-container .make-chat-content #participants-form .form-wrapper {
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  padding: 0 5px;
+}
+
+.make-chat-modal-container .make-chat-content .option-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 100%;
+  color: white;
+  padding: 0.5rem;
+  margin: 0.2rem 0;
+  border-radius: 0.4rem;
+  border: none;
+  cursor: pointer;
+}
+
+.make-chat-modal-container .make-chat-content .option-container:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.make-chat-modal-container .make-chat-content .option-container:focus-within {
+  outline: 1px #A8AABC solid;
+}
+
+.make-chat-modal-container .make-chat-content .option-container .alt-pic,
+.make-chat-modal-container .make-chat-content .option-container .profile-pic {
+  width: 5rem;
+  height: 5rem;
+  -o-object-fit: cover;
+     object-fit: cover;
+  border-radius: 50%;
+}
+
+.make-chat-modal-container .make-chat-content .option-container .alt-pic {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  background-color: rgba(0, 0, 0, 0.191);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.make-chat-modal-container .make-chat-content .option-container .alt-pic span {
+  text-transform: capitalize;
+}
+
+.make-chat-modal-container .make-chat-content .option-container .option-wrapper {
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  font-size: 1.5rem;
+  text-transform: capitalize;
+  margin: 0 1.5rem;
+}
+
+.make-chat-modal-container .make-chat-content #title-form .button-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+/*# sourceMappingURL=makeChatModal.css.map */

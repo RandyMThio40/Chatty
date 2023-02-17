@@ -1,0 +1,288 @@
+@import '../../utility/variables';
+
+.make-chat-modal-container{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    z-index: 99999999;
+    .modal-bg{
+        position:absolute;
+        top:0;
+        left:0;
+        right:0;
+        bottom:0;
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+    input[type="text"]{
+        margin: 5px 0;
+        font-family: inherit;
+        $padding:0.6rem;
+        font-size:1.2rem;
+        width:100%;
+        background-color:rgba(255, 255, 255, 0.1);
+        padding: $padding;
+        border-radius:1.1rem;
+        color: white;
+        border:none;
+    }
+        
+    #close-icon{
+        display: flex;
+        position:absolute;
+        width:3rem;
+        height:3rem;
+        top:20px;
+        right:20px;
+        background-color: transparent;
+        border:none;
+        border-radius:50%;
+        cursor: pointer;
+        &:hover{
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        &::after,
+        &::before{
+            content:"";
+            position:absolute;
+            top:50%;
+            left:50%;
+            width:80%;
+            height:1px;
+            border-radius:2px;
+            background-color: white;
+            transform:translate(-50%,-50%) rotate(45deg);
+            pointer-events: none;
+        }
+        &::before{
+            transform:translate(-50%,-50%) rotate(-45deg);
+        }
+    }
+    .make-chat-content{
+        display: flex;
+        flex-direction: column;
+        position:absolute;
+        top:50%;
+        left:50%;
+        width:100vw;
+        max-width: 700px;
+       
+        padding:1rem;
+        background-color: $bg-landing;
+        border-radius:1rem;
+        transform:translate(-50%,-50%);
+        .make-group-chat-header-container{
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+        }
+        .make-group-chat-header1{
+            font-size: 3.2rem;
+            color:white
+        }
+        .make-group-chat-header5{
+            font-size: 1.5rem;
+            color:white
+        }
+        #back-button{
+            display: inline;
+            padding:1.4rem;
+            background-color: rgba(0, 0, 0, 0.15);
+            border:none;
+            border-radius:50%;
+            margin-right:0.5rem;
+            &:hover,
+            &:focus{
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            &:hover{
+                img{
+                    opacity: 0.85;
+                }
+            }
+            &:active{
+                opacity: 0.85;
+            }
+            img{
+                width:60%;
+                height:60%;
+                position:absolute;
+                stroke:white;
+                top:50%;
+                left:50%;
+                transform:translate(-50%,-50%);
+            }
+        }
+        button[type="submit"],
+        input[type="submit"]{
+            width: 100%;
+            display: block;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: $color-input;
+            border:none;
+            border-radius: 0.3rem;
+            color:white;
+            padding:0.6rem;
+            margin:5px 0;
+            cursor: pointer;
+            &:disabled{
+                background-color:grey;
+                cursor:not-allowed;
+                &:hover{
+                    background-color: grey;
+                }
+            }
+            &:active{
+                opacity: 0.9;
+            }
+            &:hover{
+                background-color:adjust-hue($color: $color-input, $degrees: 5);
+            }
+        }
+        #participants-form{
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+            height:90vh;
+            color:white;
+            padding:0 5px;
+            overflow:hidden;
+            .participants-wrapper{
+                display: flex;
+                flex-wrap:nowrap;
+                flex-shrink:0;
+                height: max-content;
+                overflow-x:scroll;
+                .participant-preview{
+                    display:flex;
+                    flex-direction:column;
+                    flex-wrap:nowrap;
+                    align-items: center;
+                    width:5rem;
+                    margin: 0.5rem 0.2rem;
+                    overflow: hidden;
+
+                    .participant-profile{
+                        width:4rem;
+                        height:4rem;
+                        .alt-pic,
+                        img{
+                            width:100%;
+                            height:100%;
+                            object-fit: cover;
+                            border-radius: 50%;
+                            background-color: rgba(0, 0, 0, 0.4);
+                            font-size: 2rem;
+                            font-weight: bold;
+                            span{
+                                position: absolute;
+                                top:50%;
+                                left:50%;
+                                text-transform: capitalize;
+                                transform: translate(-50%,-50%);
+                            }
+                        }
+                        .remove-participant{
+                            position:absolute;
+                            top:0;
+                            left:70%;
+                            width:1.2rem;
+                            height:1.2rem;
+                            background-color: grey;
+                            border:none;
+                            border-radius: 50%;
+                            &::before,
+                            &::after{
+                                content:"";
+                                position:absolute;
+                                top:50%;
+                                left:50%;
+                                width:60%;
+                                height:1px;
+                                background-color: rgba(255, 255, 255, 0.5);
+                                border-radius: 0.1rem;
+                                transform:translate(-50%,-50%) rotate(45deg);
+                                pointer-events: none;
+                            }
+                            &::after{
+                                transform:translate(-50%,-50%) rotate(-45deg);
+                            }
+                        }
+                    }
+                    h6{
+                        width:80%;
+                        white-space:nowrap;
+                        font-size: 0.9rem;
+                        text-align: center;
+                        text-overflow: ellipsis;
+                        overflow: hidden;
+                    }
+                }
+            }
+            .form-wrapper{
+                width:100%;
+                height: 100vh;
+                overflow-y: scroll;
+                overflow-x: hidden;
+                flex-grow: 1;
+                padding: 0 5px;
+            }
+        }
+
+        .option-container{
+            display: flex;
+            flex-wrap:nowrap;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.1);
+            width:100%;
+            color:white;
+            padding:0.5rem;
+            margin: 0.2rem 0;
+            border-radius: 0.4rem;
+            border: none;
+            cursor: pointer;
+            &:hover{
+                background-color: rgba(0, 0, 0, 0.2);
+            }
+            &:focus-within{
+                outline: 1px $bg-signup solid;
+            }
+            .alt-pic,
+            .profile-pic{
+                width:5rem;
+                height:5rem;
+                object-fit: cover;
+                border-radius:50%;
+            }
+            .alt-pic{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: rgba(0, 0, 0, 0.191);
+                font-size: 2rem;
+                font-weight: bold;
+                span{
+                    text-transform: capitalize;
+
+                }
+            }
+            .option-wrapper{
+                display:inline-flex;
+                flex-wrap:nowrap;
+                align-items: center;
+                font-size:1.5rem;
+                text-transform: capitalize;
+                margin: 0 1.5rem;
+            }
+        }
+        #title-form .button-container{
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+
+        }
+    }
+
+}
