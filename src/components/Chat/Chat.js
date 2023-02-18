@@ -322,7 +322,7 @@ export const ChatLayout = () => {
 
     useLayoutEffect(()=>{
         getData();
-        socket.current = io("https://chatty-server-seven.vercel.app/");
+        socket.current = io("https://chatty-server-hh6jd8lrv-randymthio40.vercel.app/");
         socket.current.on("is-connected",(res)=>{
             // setConnected(true);
             console.log("ressss: ", socket.current.id);
@@ -447,7 +447,7 @@ const ChatMediaFiles = ({src,id,callback,list}) => {
 
     const getImageData = async (url) => {
         try{
-            let res = await axios.post("https://chatty-server-seven.vercel.app/findImg",{url:url},config);
+            let res = await axios.post(" https://chatty-server-hh6jd8lrv-randymthio40.vercel.app/findImg",{url:url},config);
             let blob = new Blob([new Uint8Array(res.data.buffer.data)],{type:"image/png"})
             if(!cancel.current){
                 callback(prev => {
