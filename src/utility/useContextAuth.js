@@ -423,10 +423,14 @@ export function AuthProvider({children}){
             }
             // test();`
             const t = async () => {
-                const test_ref = await get(query(ref(database,"ChatRooms/-Mw4w7hEQ9qXyr_sznLc/messages"),orderByChild('type'), equalTo("media")));
-                test_ref.forEach((item)=>{
-                    console.log(item.key,item.val(),item.val().timeStamp)
-                })
+                try{
+                    const test_ref = await get(query(ref(database,"ChatRooms/-Mw4w7hEQ9qXyr_sznLc/messages"),orderByChild('type'), equalTo("media")));
+                    test_ref.forEach((item)=>{
+                        console.log(item.key,item.val(),item.val().timeStamp)
+                    })
+                } catch(err){
+                    console.log(err);
+                }
 
             }
             t();
