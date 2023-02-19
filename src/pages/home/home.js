@@ -22,7 +22,7 @@ export const Home = () => {
         // })
         const test = async () => {
             try{
-                const res = await axios.post("https://marvelously-urban-iguana-burg.wayscript.cloud/findImg",{url:"https://i.ytimg.com/vi/DrAAzSadJZw/maxresdefault.jpg"})
+                const res = await axios.post("https://marvelously-urban-iguana-burg.wayscript.cloud/findImg/",{url:"https://i.ytimg.com/vi/DrAAzSadJZw/maxresdefault.jpg"})
                 let blob = new Blob([new Uint8Array(res.data.buffer.data)],{type:"image/png"})
                 let img = document.createElement('img');
                 img.src = URL.createObjectURL(blob);
