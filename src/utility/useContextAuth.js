@@ -422,18 +422,18 @@ export function AuthProvider({children}){
 
             }
             // test();`
-            const t = async () => {
-                try{
-                    const test_ref = await get(query(ref(database,"ChatRooms/-Mw4w7hEQ9qXyr_sznLc/messages"),orderByChild('type'), equalTo("media")));
-                    test_ref.forEach((item)=>{
-                        console.log(item.key,item.val(),item.val().timeStamp)
-                    })
-                } catch(err){
-                    console.log(err);
-                }
+            // const t = async () => {
+            //     try{
+            //         const test_ref = await get(query(ref(database,"ChatRooms/-Mw4w7hEQ9qXyr_sznLc/messages"),orderByChild('type'), equalTo("media")));
+            //         test_ref.forEach((item)=>{
+            //             console.log(item.key,item.val(),item.val().timestamp)
+            //         })
+            //     } catch(err){
+            //         console.log(err);
+            //     }
 
-            }
-            t();
+            // }
+            // t();
             setActiveUser(currentUser.uid);
             onValue(ref(database,`Users/${currentUser.uid}/friends`),(snapshot)=>{
                 setFriends(snapshot.val());
